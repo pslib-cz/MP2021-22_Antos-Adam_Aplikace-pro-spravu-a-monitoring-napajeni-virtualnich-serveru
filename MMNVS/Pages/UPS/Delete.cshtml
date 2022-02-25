@@ -1,0 +1,76 @@
+﻿@page
+@model MMNVS.Pages.UPS.DeleteModel
+
+@{
+    ViewData["Title"] = "Odstranění UPS";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+<h2>Odstranění UPS</h2>
+
+<h3>Opravdu že chcete smazat tuto UPS?</h3>
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.UPS.Name)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.UPS.Name)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.UPS.Model)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.UPS.Model)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.UPS.Producer)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.UPS.Producer)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.UPS.IPAddress)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.UPS.IPAddress)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.UPS.SNMPOIDState)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.UPS.SNMPOIDState)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.UPS.SNMPOIDBatteryCapacity)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.UPS.SNMPOIDBatteryCapacity)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.UPS.SNMPOIDBatteryTime)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.UPS.SNMPOIDBatteryTime)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.UPS.SNMPOIDLoad)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.UPS.SNMPOIDLoad)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.UPS.Notes)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.UPS.Notes)
+        </dd>
+    </dl>
+    
+    <form method="post">
+        <input type="hidden" asp-for="UPS.Id" />
+        <input type="submit" value="Smazat" class="btn btn-danger" /> |
+        <a asp-page="./Index">Zpět</a>
+    </form>
+</div>

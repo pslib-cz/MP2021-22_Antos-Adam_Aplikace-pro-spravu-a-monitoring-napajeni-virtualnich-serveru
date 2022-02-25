@@ -1,0 +1,73 @@
+﻿@page
+@model MMNVS.Pages.Hosts.CreateModel
+
+@{
+    ViewData["Title"] = "Nový host";
+}
+
+<h2>Nový hostitelský server</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-floating">
+                <input asp-for="HostServer.Name" class="form-control" />
+                <label asp-for="HostServer.Name" class="form-label"></label>
+                <span asp-validation-for="HostServer.Name" class="text-danger"></span>
+            </div>
+            <div class="mt-2 form-floating">
+                <input asp-for="HostServer.Producer" class="form-control" />
+                <label asp-for="HostServer.Producer" class="form-label"></label>
+                <span asp-validation-for="HostServer.Producer" class="text-danger"></span>
+            </div>
+            <div class="mt-2 form-floating">
+                <input asp-for="HostServer.iLoIPAddress" class="form-control" />
+                <label asp-for="HostServer.iLoIPAddress" class="form-label"></label>
+                <span asp-validation-for="HostServer.iLoIPAddress" class="text-danger"></span>
+            </div>
+            <div class="mt-2 form-floating">
+                <input asp-for="HostServer.iLoUser" class="form-control" />
+                <label asp-for="HostServer.iLoUser" class="form-label"></label>
+                <span asp-validation-for="HostServer.iLoUser" class="text-danger"></span>
+            </div>
+            <div class="mt-2 form-floating">
+                <input asp-for="HostServer.iLoPassword" class="form-control" />
+                <label asp-for="HostServer.iLoPassword" class="form-label"></label>
+                <span asp-validation-for="HostServer.iLoPassword" class="text-danger"></span>
+            </div>
+            <div class="mt-2 form-floating">
+                <input asp-for="HostServer.ESXiIPAddress" class="form-control" />
+                <label asp-for="HostServer.ESXiIPAddress" class="form-label"></label>
+                <span asp-validation-for="HostServer.ESXiIPAddress" class="text-danger"></span>
+            </div>
+            <div class="mt-2 form-floating">
+                <input asp-for="HostServer.ESXiUser" class="form-control" />
+                <label asp-for="HostServer.ESXiUser" class="form-label"></label>
+                <span asp-validation-for="HostServer.ESXiUser" class="text-danger"></span>
+            </div>
+            <div class="mt-2 form-floating">
+                <input asp-for="HostServer.ESXiPassword" class="form-control" />
+                <label asp-for="HostServer.ESXiPassword" class="form-label"></label>
+                <span asp-validation-for="HostServer.ESXiPassword" class="text-danger"></span>
+            </div>
+            <div class="mt-2 form-floating">
+                <input asp-for="HostServer.Notes" class="form-control" />
+                <label asp-for="HostServer.Notes" class="form-label"></label>
+                <span asp-validation-for="HostServer.Notes" class="text-danger"></span>
+            </div>
+            <div class="mt-2">
+                <button type="submit" asp-page-handler="Submit" class="w-100 btn btn-outline-secondary">Vytvořit</button>
+                <button type="submit" asp-page-handler="SubmitNewStorage" class="mt-2 w-100 btn btn-outline-secondary">Vytvořit a přidat storage server</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="Index">Zpět</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

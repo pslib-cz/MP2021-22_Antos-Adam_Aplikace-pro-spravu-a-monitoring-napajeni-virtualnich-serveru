@@ -1,0 +1,38 @@
+﻿@page
+@model MMNVS.Pages.Hosts.StorageServers.Datastores.DeleteModel
+
+@{
+    ViewData["Title"] = "Odstranění datastoru";
+}
+
+<h2>Odstranění datastoru</h2>
+
+<h3>Opravdu chcete odstranit tento datastore?</h3>
+<div>
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Datastore.Name)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Datastore.Name)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Datastore.Priority)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Datastore.Priority)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Datastore.Notes)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Datastore.Notes)
+        </dd>
+    </dl>
+    
+    <form method="post">
+        <input type="hidden" asp-for="Datastore.Id" />
+        <input type="submit" value="Odstranit" class="btn btn-danger" /> |
+        <a asp-page="Index" asp-route-storageServerId = "@Model.StorageServerId">Zpět na seznam datastorů</a>
+    </form>
+</div>

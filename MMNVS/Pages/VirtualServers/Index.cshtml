@@ -1,0 +1,73 @@
+﻿@page
+@model MMNVS.Pages.VirtualServers.IndexModel
+
+@{
+    ViewData["Title"] = "Virtuální servery";
+}
+
+<h1>Virtuální servery</h1>
+
+<p>
+    <a asp-page="Create">Ruční přidání</a>
+    <a asp-page="Index" asp-page-handler="GetFromvCenter">Načíst z vCenter</a>
+</p>
+<table class="table text-center">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.VirtualServer[0].VMId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.VirtualServer[0].Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.VirtualServer[0].Order)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.VirtualServer[0].StartServerOnStart)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.VirtualServer[0].Notes)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.VirtualServer) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.VMId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                    @if(item.Order != null)
+                    {
+                        @Html.DisplayFor(modelItem => item.Order)
+                        <div class="mx-auto btn-group" role="group">
+                            <a asp-page="Index" asp-page-handler="ChangeOrderUp" asp-route-vmid="@item.VMId" class="btn btn-secondary btn-sm">↑</a>
+                            <a asp-page="Index" asp-page-handler="ChangeOrderDown" asp-route-vmid="@item.VMId" class="btn btn-secondary btn-sm">↓</a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div>vCenter</div>
+                    }
+
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.StartServerOnStart)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Notes)
+            </td>
+            <td>
+                <a asp-page="./Edit" asp-route-id="@item.VMId">Upravit</a> |
+                <a asp-page="./Details" asp-route-id="@item.VMId">Stav</a> |
+                <a asp-page="./Delete" asp-route-id="@item.VMId">Odstranit</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

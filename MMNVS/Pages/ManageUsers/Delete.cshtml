@@ -1,0 +1,29 @@
+﻿@page
+@model MMNVS.Pages.ManageUsers.DeleteModel
+@{
+    ViewData["Title"] = "Odstranění uživatele";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+<h2>Odstranění uživatele</h2>
+
+<h3>Opravdu chcete smazat toho uživatele?</h3>
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">Uživatelské jméno</dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.MyUser.UserName)
+        </dd>
+        <dt class="col-sm-2">Poznámky</dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.MyUser.Notes)
+        </dd>
+    </dl>
+    
+    <form method="post">
+        <input type="hidden" asp-for="MyUser.Id" />
+        <input type="submit" value="Smazat" class="btn btn-danger" /> |
+        <a asp-page="./Index">Zpět</a>
+    </form>
+</div>

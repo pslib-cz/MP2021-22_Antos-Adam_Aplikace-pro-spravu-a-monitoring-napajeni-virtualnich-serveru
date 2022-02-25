@@ -1,0 +1,43 @@
+﻿@page
+@model MMNVS.Pages.Hosts.StorageServers.DeleteModel
+
+@{
+    ViewData["Title"] = "Odstranění storage serveru";
+}
+
+<h2>Odstranění storage serveru</h2>
+
+<h3>Opravdu chcete odstranit tento storage server a datastory k němu přiřazené?</h3>
+<div>
+    <h4>VirtualStorageServer</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.VirtualStorageServer.Name)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.VirtualStorageServer.Name)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.VirtualStorageServer.Host)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.VirtualStorageServer.Host.Id)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.VirtualStorageServer.Order)
+        </dt>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.VirtualStorageServer.Notes)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.VirtualStorageServer.Notes)
+        </dd>
+    </dl>
+    
+    <form method="post">
+        <input type="hidden" asp-for="VirtualStorageServer.Id" />
+        <input type="submit" value="Odstranit" class="btn btn-danger" /> |
+        <a asp-page="./Index" asp-route-hostServerId = "@Model.HostServerId">Zpět na seznam storage serverů</a>
+    </form>
+</div>

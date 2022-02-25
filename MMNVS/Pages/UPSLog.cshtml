@@ -1,0 +1,64 @@
+﻿@page
+@model MMNVS.Pages.UPSLogModel
+
+@{
+    ViewData["Title"] = "UPS Log";
+}
+
+<h1>UPS Log</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UPSLogItem[0].UPS)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UPSLogItem[0].DateTime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UPSLogItem[0].State)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UPSLogItem[0].BatteryCapacity)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UPSLogItem[0].RemainingTime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UPSLogItem[0].Load)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UPSLogItem[0].Error)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.UPSLogItem) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.UPS.Name) (@Html.DisplayFor(modelItem => item.UPS.Id))
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DateTime)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.State)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.BatteryCapacity)%
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RemainingTime)s
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Load)%
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Error)
+            </td>
+            <td>
+        </tr>
+}
+    </tbody>
+</table>

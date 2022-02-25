@@ -1,0 +1,61 @@
+﻿@page
+@model MMNVS.Pages.UPS.IndexModel
+
+@{
+    ViewData["Title"] = "Seznam UPS";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+<h1>Seznam UPS</h1>
+
+<p>
+    <a asp-page="Create">Přidat novou</a>
+</p>
+<table class="table text-center">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UPS[0].Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UPS[0].Model)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UPS[0].Producer)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UPS[0].IPAddress)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UPS[0].Notes)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.UPS) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Model)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Producer)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IPAddress)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Notes)
+            </td>
+            <td>
+                <a asp-page="./Edit" asp-route-id="@item.Id">Upravit</a> |
+                <a asp-page="./Details" asp-route-id="@item.Id">Stav</a> |
+                <a asp-page="./Delete" asp-route-id="@item.Id">Odstranit</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

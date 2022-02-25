@@ -1,0 +1,84 @@
+﻿@page
+@model MMNVS.Pages.Hosts.IndexModel
+
+@{
+    ViewData["Title"] = "Hostitelské servery";
+}
+
+<h1>Hostitelské servery</h1>
+
+<p>
+    <a asp-page="Create">Přidat nový</a>
+</p>
+<table class="table text-center">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.HostServer[0].Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.HostServer[0].Producer)
+            </th>
+@*            <th>
+                @Html.DisplayNameFor(model => model.HostServer[0].iLoIPAddress)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.HostServer[0].iLoUser)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.HostServer[0].iLoPassword)
+            </th>*@
+            <th>
+                @Html.DisplayNameFor(model => model.HostServer[0].ESXiIPAddress)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.HostServer[0].ESXiUser)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.HostServer[0].ESXiPassword)
+            </th>
+@*            <th>
+                @Html.DisplayNameFor(model => model.HostServer[0].Notes)
+            </th>*@
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.HostServer) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Producer)
+            </td>
+@*            <td>
+                @Html.DisplayFor(modelItem => item.iLoIPAddress)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.iLoUser)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.iLoPassword)
+            </td>*@
+            <td>
+                @Html.DisplayFor(modelItem => item.ESXiIPAddress)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ESXiUser)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ESXiPassword)
+            </td>
+@*            <td>
+                @Html.DisplayFor(modelItem => item.Notes)
+            </td>*@
+            <td>
+                <a asp-page="./StorageServers/Index" asp-route-hostServerId="@item.Id">Storage servery</a> |
+                <a asp-page="./Edit" asp-route-id="@item.Id">Upravit</a> |
+                <a asp-page="./Delete" asp-route-id="@item.Id">Odstranit</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

@@ -1,0 +1,80 @@
+﻿@page
+@model MMNVS.Pages.UPS.DetailsModel
+
+@{
+    ViewData["Title"] = "Aktuální stav";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+@if (Model.SuccessMessage != null)
+{
+    <div class="alert alert-success">@Model.SuccessMessage</div>
+}
+@if (Model.ErrorMessage != null)
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+<h2>Aktuální stav UPS</h2>
+
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.UPS.Name)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.UPS.Name)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.UPS.Model)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.UPS.Model)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.UPS.Producer)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.UPS.Producer)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.UPS.IPAddress)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.UPS.IPAddress)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.UPSData.State)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.UPSData.State)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.UPSData.BatteryCapacity)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.UPSData.BatteryCapacity)%
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.UPSData.RemainingTime)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.UPSData.RemainingTime)s
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.UPSData.Load)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.UPSData.Load)%
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.UPS.Notes)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.UPS.Notes)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-page="./Edit" asp-route-id="@Model.UPS.Id">Upravit</a> |
+    <a asp-page="./Index">Zpět</a>
+</div>

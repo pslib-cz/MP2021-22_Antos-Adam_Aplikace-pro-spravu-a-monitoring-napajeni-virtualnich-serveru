@@ -1,0 +1,50 @@
+﻿@page
+@model MMNVS.Pages.Hosts.StorageServers.IndexModel
+
+@{
+    ViewData["Title"] = "Storage servery";
+}
+
+<h1>Storage servery</h1>
+
+<h4>na host serveru @Model.HostServer.Name</h4>
+
+<p>
+    <a asp-page="Create" asp-route-hostServerId=@Model.HostServer.Id>Přidat nový</a>
+</p>
+<table class="table text-center">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.VirtualStorageServer[0].Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.VirtualStorageServer[0].Order)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.VirtualStorageServer[0].Notes)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.VirtualStorageServer) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Order)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Notes)
+            </td>
+            <td>
+                <a asp-page="./Datastores/Index" asp-route-storageServerId="@item.Id">Datastory</a> |
+                <a asp-page="./Edit" asp-route-id="@item.Id" asp-route-hostServerId="@Model.HostServer.Id">Upravit</a> |
+                <a asp-page="./Delete" asp-route-id="@item.Id" asp-route-hostServerId="@Model.HostServer.Id">Odstranit</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

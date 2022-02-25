@@ -1,0 +1,76 @@
+﻿@page
+@model MMNVS.Pages.Hosts.DeleteModel
+
+@{
+    ViewData["Title"] = "Odstranění hosta";
+}
+
+<h2>Odstranění hostitelského serveru</h2>
+
+<h3>Opravdu chcete odstranit tento hostitelský server, storage servery a jejich datastory k němu přiřazené?</h3>
+<div>
+    <h4>HostServer</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.HostServer.Name)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.HostServer.Name)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.HostServer.Producer)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.HostServer.Producer)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.HostServer.iLoIPAddress)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.HostServer.iLoIPAddress)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.HostServer.iLoUser)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.HostServer.iLoUser)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.HostServer.iLoPassword)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.HostServer.iLoPassword)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.HostServer.ESXiIPAddress)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.HostServer.ESXiIPAddress)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.HostServer.ESXiUser)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.HostServer.ESXiUser)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.HostServer.ESXiPassword)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.HostServer.ESXiPassword)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.HostServer.Notes)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.HostServer.Notes)
+        </dd>
+    </dl>
+    
+    <form method="post">
+        <input type="hidden" asp-for="HostServer.Id" />
+        <input type="submit" value="Odstranit" class="btn btn-danger" /> |
+        <a asp-page="./Index">Zpět na seznam hostů</a>
+    </form>
+</div>

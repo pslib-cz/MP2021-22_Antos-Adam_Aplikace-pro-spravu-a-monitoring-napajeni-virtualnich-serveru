@@ -1,0 +1,45 @@
+﻿@page
+@model MMNVS.Pages.VirtualServers.DeleteModel
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h1>Odstranění</h1>
+
+<h3>Opravdu chcete smazat tento virtuální server?</h3>
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.VirtualServer.Name)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.VirtualServer.Name)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.VirtualServer.Order)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.VirtualServer.Order)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.VirtualServer.StartServerOnStart)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.VirtualServer.StartServerOnStart)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.VirtualServer.Notes)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.VirtualServer.Notes)
+        </dd>
+    </dl>
+    
+    <form method="post">
+        <input type="hidden" asp-for="VirtualServer.VMId" />
+        <input type="submit" value="Odstranit" class="btn btn-danger" /> |
+        <a asp-page="./Index">Zpět</a>
+    </form>
+</div>

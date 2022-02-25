@@ -1,0 +1,111 @@
+﻿@page
+@model MMNVS.Pages.SettingsModel
+
+@{
+    ViewData["Title"] = "Nastavení";
+}
+
+<h1>Nastavení prostředí</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="AppSettings.Id" />
+            <input type="hidden" asp-for="AppSettings.SystemState" />
+            <div class="form-floating">
+                <input asp-for="AppSettings.Name" class="form-control" />
+                <label asp-for="AppSettings.Name" class="form-label"></label>
+                <span asp-validation-for="AppSettings.Name" class="text-danger"></span>
+            </div>
+            <div class="mt-2 form-floating">
+                <input asp-for="AppSettings.vCenterIP" class="form-control" />
+                <label asp-for="AppSettings.vCenterIP" class="form-label"></label>
+                <span asp-validation-for="AppSettings.vCenterIP" class="text-danger"></span>
+            </div>
+            <div class="mt-2 form-floating">
+                <input asp-for="AppSettings.vCenterUsername" class="form-control" />
+                <label asp-for="AppSettings.vCenterUsername" class="form-label"></label>
+                <span asp-validation-for="AppSettings.vCenterUsername" class="text-danger"></span>
+            </div>
+            <div class="mt-2 form-floating">
+                <input asp-for="AppSettings.vCenterPassword" class="form-control" />
+                <label asp-for="AppSettings.vCenterPassword" class="form-label"></label>
+                <span asp-validation-for="AppSettings.vCenterPassword" class="text-danger"></span>
+            </div>
+            <div class="mt-2 form-floating">
+                <input asp-for="AppSettings.vCenterApiUrl" class="form-control" />
+                <label asp-for="AppSettings.vCenterApiUrl" class="form-label"></label>
+                <span asp-validation-for="AppSettings.vCenterApiUrl" class="text-danger"></span>
+            </div>
+            <div class="mt-2 form-floating">
+                <input asp-for="AppSettings.AdministratorEmail" class="form-control" />
+                <label asp-for="AppSettings.AdministratorEmail" class="form-label"></label>
+                <span asp-validation-for="AppSettings.AdministratorEmail" class="text-danger"></span>
+            </div>
+            <div class="mt-2 form-floating">
+                <input asp-for="AppSettings.SmtpServer" class="form-control" />
+                <label asp-for="AppSettings.SmtpServer" class="form-label"></label>
+                <span asp-validation-for="AppSettings.SmtpServer" class="text-danger"></span>
+            </div>
+            <div class="mt-2 form-floating">
+                <input asp-for="AppSettings.SmtpUser" class="form-control" />
+                <label asp-for="AppSettings.SmtpUser" class="form-label"></label>
+                <span asp-validation-for="AppSettings.SmtpUser" class="text-danger"></span>
+            </div>
+            <div class="mt-2 form-floating">
+                <input asp-for="AppSettings.SmtpPassword" class="form-control" />
+                <label asp-for="AppSettings.SmtpPassword" class="form-label"></label>
+                <span asp-validation-for="AppSettings.SmtpPassword" class="text-danger"></span>
+            </div>
+            <div class="mt-2 form-floating">
+                <input asp-for="AppSettings.SmtpPort" class="form-control" />
+                <label asp-for="AppSettings.SmtpPort" class="form-label"></label>
+                <span asp-validation-for="AppSettings.SmtpPort" class="text-danger"></span>
+            </div>
+            <div class="form-check form-switch">
+                <input asp-for="AppSettings.SmtpIsSecure" class="form-check-input" type="checkbox" role="switch" />
+                <label asp-for="AppSettings.SmtpIsSecure" class="form-check-label"></label>
+            </div>
+            <div class="mt-2 form-floating">
+                <select asp-for="AppSettings.PrimaryUPSId" class="form-control" asp-items="ViewBag.PrimaryUPSId"></select>
+                <label asp-for="AppSettings.PrimaryUPSId" class="form-label"></label>
+                <span asp-validation-for="AppSettings.PrimaryUPSId" class="text-danger"></span>
+            </div>
+            <div class="mt-2 form-floating">
+                <input asp-for="AppSettings.DelayTime" class="form-control" />
+                <label asp-for="AppSettings.DelayTime" class="form-label"></label>
+                <span asp-validation-for="AppSettings.DelayTime" class="text-danger"></span>
+            </div>
+           <div class="mt-2 form-floating">
+                <input asp-for="AppSettings.DelayTimeHosts" class="form-control" />
+                <label asp-for="AppSettings.DelayTimeHosts" class="form-label"></label>
+                <span asp-validation-for="AppSettings.DelayTimeHosts" class="text-danger"></span>
+            </div>
+            <div class="mt-2 form-floating">
+                <input asp-for="AppSettings.DelayTimeDatastores" class="form-control" />
+                <label asp-for="AppSettings.DelayTimeDatastores" class="form-label"></label>
+                <span asp-validation-for="AppSettings.DelayTimeDatastores" class="text-danger"></span>
+            </div>
+            <div class="mt-2 form-floating">
+                <input asp-for="AppSettings.DelayTimeVMStart" class="form-control" />
+                <label asp-for="AppSettings.DelayTimeVMStart" class="form-label"></label>
+                <span asp-validation-for="AppSettings.DelayTimeVMStart" class="text-danger"></span>
+            </div>
+            <div class="mt-2 form-floating">
+                <input asp-for="AppSettings.MinBatteryTimeForStart" class="form-control" />
+                <label asp-for="AppSettings.MinBatteryTimeForStart" class="form-label"></label>
+                <span asp-validation-for="AppSettings.MinBatteryTimeForStart" class="text-danger"></span>
+            </div>
+            <div class="mt-2">
+                <button type="submit" class="w-100 btn btn-outline-secondary">Uložit a zkontrolovat</button>
+                <button type="submit" asp-page-handler="TestMail" class="mt-2 w-100 btn btn-outline-secondary">Test nastavení emailu</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

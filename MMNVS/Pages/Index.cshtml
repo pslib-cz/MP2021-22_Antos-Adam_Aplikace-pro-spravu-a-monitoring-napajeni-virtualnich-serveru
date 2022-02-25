@@ -1,0 +1,13 @@
+﻿@page
+@model IndexModel
+@{
+ViewData["Title"] = "Úvod";
+}
+
+<div>
+    <div @*style="margin-left: 25%; margin-right: 25%;"*@ class="h-100 p-5 text-white bg-dark rounded-3">
+    <h2>Monitoring a management napájení virtuálních serverů</h2>
+    <p>@Model.apiUrl</p>
+    <p>@Model.test</p>
+    </div>
+</div>

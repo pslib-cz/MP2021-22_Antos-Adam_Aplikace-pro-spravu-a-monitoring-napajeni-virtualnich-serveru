@@ -1,0 +1,39 @@
+﻿@page
+@model MMNVS.Pages.ManageUsers.IndexModel
+@{
+    ViewData["Title"] = "Správa uživatelů";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+<h1>Správa uživatelů</h1>
+
+<p>
+    <a asp-page="Create">Přidat uživatele (správce)</a>
+</p>
+<table class="table text-center">
+    <thead>
+        <tr>
+            <th>Uživatelské jméno</th>
+            <th>Poznámka</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.Users) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.UserName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Notes)
+            </td>
+            <td>
+                    @if(item.Id != Model.UserId)
+                    {
+                    <a asp-page="./Delete" asp-route-id="@item.Id">Odstranit</a>
+                    }
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

@@ -1,0 +1,57 @@
+﻿@page
+@model MMNVS.Pages.LogModel
+
+@{
+    ViewData["Title"] = "Log";
+}
+
+<h1>Log</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.LogItem[0].DateTime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LogItem[0].OperationType)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LogItem[0].UPS)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LogItem[0].HostServer)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LogItem[0].VirtualServer)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LogItem[0].Datastore)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.LogItem) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.DateTime)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.OperationType)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UPSId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.HostServerId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.VirtualServerVMId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DatastoreId)
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

@@ -1,0 +1,63 @@
+﻿@page
+@model MMNVS.Pages.UPS.CreateModel
+
+@{
+    ViewData["Title"] = "Nová UPS";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+<h2>Nová UPS</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-floating">
+                <input asp-for="UPS.Name" class="form-control" />
+                <label asp-for="UPS.Name" class="form-label"></label>
+                <span asp-validation-for="UPS.Name" class="text-danger"></span>
+            </div>
+            <div class="mt-2 form-floating">
+                <input asp-for="UPS.IPAddress" class="form-control" />
+                <label asp-for="UPS.IPAddress" class="form-label"></label>
+                <span asp-validation-for="UPS.IPAddress" class="text-danger"></span>
+            </div>
+            <div class="mt-2 form-floating">
+                <input asp-for="UPS.SNMPOIDState" class="form-control" />
+                <label asp-for="UPS.SNMPOIDState" class="form-label"></label>
+                <span asp-validation-for="UPS.SNMPOIDState" class="text-danger"></span>
+            </div>
+            <div class="mt-2 form-floating">
+                <input asp-for="UPS.SNMPOIDBatteryCapacity" class="form-control" />
+                <label asp-for="UPS.SNMPOIDBatteryCapacity" class="form-label"></label>
+                <span asp-validation-for="UPS.SNMPOIDBatteryCapacity" class="text-danger"></span>
+            </div>
+            <div class="mt-2 form-floating">
+                <input asp-for="UPS.SNMPOIDBatteryTime" class="form-control" />
+                <label asp-for="UPS.SNMPOIDBatteryTime" class="form-label"></label>
+                <span asp-validation-for="UPS.SNMPOIDBatteryTime" class="text-danger"></span>
+            </div>
+            <div class="mt-2 form-floating">
+                <input asp-for="UPS.SNMPOIDLoad" class="form-control" />
+                <label asp-for="UPS.SNMPOIDLoad" class="form-label"></label>
+                <span asp-validation-for="UPS.SNMPOIDLoad" class="text-danger"></span>
+            </div>
+            <div class="mt-2 form-floating">
+                <input asp-for="UPS.Notes" class="form-control" />
+                <label asp-for="UPS.Notes" class="form-label"></label>
+                <span asp-validation-for="UPS.Notes" class="text-danger"></span>
+            </div>
+            <div class="mt-2">
+                <button type="submit" class="w-100 btn btn btn-outline-secondary">Vytvořit</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="Index">Zpět</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
