@@ -29,13 +29,16 @@ namespace MMNVS.Services
                 1000);
                 logItem.BatteryCapacity = Int32.Parse(dataUps[0].Data.ToString());
                 logItem.RemainingTime = Int32.Parse(dataUps[1].Data.ToString());
-                if (Int32.Parse(dataUps[2].Data.ToString()) == 3) logItem.State = UPSStateEnum.MainSupply;
+                int upsState = Int32.Parse(dataUps[2].Data.ToString());
+                if (upsState == 3) logItem.State = UPSStateEnum.MainSupply;
+                else if (upsState == 2) logItem.State = UPSStateEnum.Battery;
                 logItem.Load = Int32.Parse(dataUps[3].Data.ToString());
             }
             catch
             {
                 logItem.Error = true;
             }
+            //logItem.State = UPSStateEnum.Battery; //pouze pro testování aplikace
             return logItem;
         }
 
@@ -56,7 +59,7 @@ namespace MMNVS.Services
             {
                 try
                 {
-                    if (GetUPSLogItem(u).State != UPSStateEnum.MainSupply) return false;
+                    if (GetUPSLogItem(u).State == UPSStateEnum.Battery) return false;
                 }
                 catch
                 {

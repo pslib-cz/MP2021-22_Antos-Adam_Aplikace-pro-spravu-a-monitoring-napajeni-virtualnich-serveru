@@ -34,14 +34,15 @@ namespace MMNVS.Pages
         }
 
         [BindProperty]
-        public AppSettings AppSettings { get; set; }
+        public AppSettings Settings { get; set; }
 
         public async Task<IActionResult> OnGetAsync()
         {
 
-            AppSettings = _dbService.GetSettings();
+            Settings = _dbService.GetSettings();
 
-           ViewData["PrimaryUPSId"] = new SelectList(_context.UPS, "Id", "Name");            return Page();
+            ViewData["PrimaryUPSId"] = new SelectList(_context.UPS, "Id", "Name");            
+            return Page();
         }
 
         public async Task<IActionResult> OnPostAsync()
@@ -50,7 +51,7 @@ namespace MMNVS.Pages
             {
                 return Page();
             }
-            _dbService.UpdateSettings(AppSettings);
+            _dbService.UpdateSettings(Settings);
             if (_vmService.GetvCenterState() == PowerStateEnum.PoweredOn) SuccessMessage = "Připojení k vCenter serveru bylo úspěšné. Změny byly uloženy.";
             else ErrorMessage = "Při připojování k serveru se vyskytla neočekávaná chyba, zkontrolujte správnost údajů!";
             return RedirectToPage("Settings");
@@ -65,7 +66,7 @@ namespace MMNVS.Pages
 
             try
             {
-                _dbService.UpdateSettings(AppSettings);
+                _dbService.UpdateSettings(Settings);
                 _mailService.SendMail("Testovací zpráva MMNVS", "Pokud Vám byl doručen tento email, Vaše nastavení SMTP je správné.");
                 SuccessMessage = "Testovací email byl odeslán";
             }

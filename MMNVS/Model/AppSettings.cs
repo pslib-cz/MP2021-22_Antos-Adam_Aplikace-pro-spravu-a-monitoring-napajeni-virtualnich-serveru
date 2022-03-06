@@ -5,12 +5,26 @@ namespace MMNVS.Model
 {
     public enum SystemStateEnum
     {
+        [Display(Name = "Neznámý")]
         Unknown,
+        [Display(Name = "Spuštěno")]
         Running,
+        [Display(Name = "Spouštění")]
         Startup,
+        [Display(Name = "Vypínání")]
         Shutdown,
+        [Display(Name = "Přerušen start/vypínání")]
         Interrupt,
+        [Display(Name = "Vypnuto")]
         Off
+    }
+
+    public enum vCenterVersionEnum
+    {
+        [Display(Name = "Verze 6.6 a nižší")]
+        v65,
+        [Display(Name = "Verze 6.7 a vyšší")]
+        v67
     }
     public class AppSettings
     {
@@ -42,6 +56,8 @@ namespace MMNVS.Model
         public string? vCenterPassword { get; set; }
         [Display(Name = "API url vCenter")]
         public string? vCenterApiUrl { get; set; }
+        [Display(Name = "Verze vCenter")]
+        public vCenterVersionEnum vCenterVersion { get; set; }
         [Display(Name = "Čas čekání pro kontrolu stavu u VM")]
         public int DelayTime { get; set; }
         [Display(Name = "Čas čekání pro kontrolu stavu u hostů (s)")]
@@ -52,6 +68,8 @@ namespace MMNVS.Model
         public int DelayTimeVMStart { get; set; }
         [Display(Name = "Minimální výdrž baterie pro start (s)")]
         public int MinBatteryTimeForStart { get; set; } //Minimální výdrž baterie pro bezpečný start VM v sec
+        [Display(Name = "Výdrž baterie pro zahájení vypínání (s)")]
+        public int MinBatteryTimeForShutdown { get; set; } //Minimální výdrž baterie pro bezpečný start VM v sec
         public SystemStateEnum SystemState { get; set; }
     }
 }

@@ -92,7 +92,7 @@ namespace MMNVS.Services
         }
         public void CheckStartvCenterHost(HostServer host)
         {
-            string vCenterName = _dbService.GetSettingsWithoutInclude().vCenterIP;
+            string vCenterName = _dbService.GetvCenter().Name;
             Runspace runspace = RunspaceFactory.CreateRunspace();
             runspace.Open();
 
@@ -101,15 +101,40 @@ namespace MMNVS.Services
             pipeline.Commands.AddScript("Import-Module VMware.VimAutomation.Core"/*"Get-Module -Name VMware* -ListAvailable | Import-Module"*/);
             pipeline.Commands.AddScript("Connect-VIServer -Server " + host.ESXiIPAddress + " -Protocol https -User "+ host.ESXiUser +" -Password "+ host.ESXiPassword +" -ErrorAction Stop");
             pipeline.Commands.AddScript("Get-VM -Name "+ vCenterName + " -Server " + host.ESXiIPAddress + " | Start-VM" + " -ErrorAction Stop");
-            //pipeline.Commands.Add("Out-string");
-            /*Collection<PSObject> results = */pipeline.Invoke();
+            pipeline.Invoke();
             runspace.Close();
-            /*StringBuilder stringBuilder = new StringBuilder();
-            foreach (PSObject obj in results)
+        }
+
+        public HostServer FindShutdownvCenter()
+        {
+            List<HostServer> hostServers = _context.HostServers.ToList();
+            foreach (HostServer hostServer in hostServers)
             {
-                stringBuilder.Append(obj.ToString());
-             }*/
-            //return stringBuilder.ToString();
+                try
+                {
+                    CheckShutdownvCenterHost(hostServer);
+                    return hostServer;
+                }
+                catch
+                {
+
+                }
+            }
+            return null;
+        }
+        public void CheckShutdownvCenterHost(HostServer host)
+        {
+            string vCenterName = _dbService.GetvCenter().Name;
+            Runspace runspace = RunspaceFactory.CreateRunspace();
+            runspace.Open();
+
+            Pipeline pipeline = runspace.CreatePipeline();
+            pipeline.Commands.AddScript("Set-ExecutionPolicy Unrestricted");
+            pipeline.Commands.AddScript("Import-Module VMware.VimAutomation.Core"/*"Get-Module -Name VMware* -ListAvailable | Import-Module"*/);
+            pipeline.Commands.AddScript("Connect-VIServer -Server " + host.ESXiIPAddress + " -Protocol https -User " + host.ESXiUser + " -Password " + host.ESXiPassword + " -ErrorAction Stop");
+            pipeline.Commands.AddScript("Get-VM -Name " + vCenterName + " -Server " + host.ESXiIPAddress + " | Shutdown-VMGuest -Confirm:$false");
+            pipeline.Invoke();
+            runspace.Close();
         }
 
         public void ShutdownStorageServer(VirtualStorageServer storageServer)
@@ -213,7 +238,9 @@ namespace MMNVS.Services
         void/*ActionResult*/ ServerDataStoreCheck(int storageServerId);
         void/*ActionResult*/ StorageRescan(HostServer host);
         void CheckStartvCenterHost(HostServer host);
+        void CheckShutdownvCenterHost(HostServer host);
         HostServer FindStartvCenter();
+        HostServer FindShutdownvCenter();
         PowerStateEnum GetHostServerStatus(HostServer host);
         void StartStorageServer(VirtualStorageServer storageServer);
         bool DataStoreCheck(Datastore datastore);

@@ -22,15 +22,14 @@ builder.Services.AddDefaultIdentity<MyUser>(options => options.SignIn.RequireCon
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddRazorPages(o => o.Conventions.AuthorizeFolder("/"));
 
-//builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
-//builder.Services.Configure<AppSettings>(builder.Configuration.GetSection("AppSettings"));
-//builder.Services.Configure<ConfigurationManager>(builder.Configuration.GetSection("AppSettings"));
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<IVMService, VMService>();
 builder.Services.AddTransient<IUPSService, UPSService>();
 builder.Services.AddTransient<IDbService, DbService>();
 builder.Services.AddTransient<IServerService, ServerService>();
 builder.Services.AddTransient<IScenarioService, ScenarioService>();
 builder.Services.AddTransient<IMailService, MailService>();
+builder.Services.AddHostedService<TimedHostedService>();
 
 
 var app = builder.Build();

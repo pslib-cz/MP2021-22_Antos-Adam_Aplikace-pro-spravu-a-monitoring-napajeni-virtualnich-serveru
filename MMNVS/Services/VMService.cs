@@ -6,6 +6,7 @@ using MMNVS.Data;
 using MMNVS.Model;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Management.Automation.Runspaces;
 using System.Net;
 
 namespace MMNVS.Services
@@ -128,7 +129,24 @@ namespace MMNVS.Services
                 return response.StatusCode;
             }
         }
-        public async Task<HttpStatusCode> ShutdownVirtualServer(string vmId)
+
+        public async void ShutdownVirtualServer(string vmId)
+        {
+            var version = _dbService.GetSettingsWithoutInclude().vCenterVersion;
+            if (version == vCenterVersionEnum.v65)
+            {
+                ShutdownVirtualServer65(vmId);
+            }
+            else if (version == vCenterVersionEnum.v67)
+            {
+                await ShutdownVirtualServer67(vmId);
+            }
+            else
+            {
+                throw new NullReferenceException();
+            }
+        }
+        public async Task<HttpStatusCode> ShutdownVirtualServer67(string vmId) //vypínání ve verzi 6.7 a novější (pomocí REST API)
         {
             VirtualServer virtualServer = _context.VirtualServers.Include(i => i.Log).First(v => v.VMId == vmId);
             string apiKey = GetvCenterApiKey().Result;
@@ -141,6 +159,22 @@ namespace MMNVS.Services
                 var response = await httpClient.SendAsync(request);
                 return response.StatusCode;
             }
+        }
+
+        public void ShutdownVirtualServer65(string vmId) //Vypínání ve verzi 6.6 a starší, v REST Api není endpoint pro shutdown virtuálního serveru
+        {
+            VirtualServer virtualServer = _context.VirtualServers.FirstOrDefault(v => v.VMId == vmId);
+            AppSettings settings = _dbService.GetSettingsWithoutInclude();
+            Runspace runspace = RunspaceFactory.CreateRunspace();
+            runspace.Open();
+
+            Pipeline pipeline = runspace.CreatePipeline();
+            pipeline.Commands.AddScript("Set-ExecutionPolicy Unrestricted");
+            pipeline.Commands.AddScript("Import-Module VMware.VimAutomation.Core"/*"Get-Module -Name VMware* -ListAvailable | Import-Module"*/);
+            pipeline.Commands.AddScript("Connect-VIServer -Server " + settings.vCenterIP + " -Protocol https -User " + settings.vCenterUsername + " -Password " + settings.vCenterPassword + " -ErrorAction Stop");
+            pipeline.Commands.AddScript("Get-VM -Name " + virtualServer.Name + " | Shutdown-VMGuest -Confirm:$false");
+            pipeline.Invoke();
+            runspace.Close();
         }
 
         public PowerStateEnum GetPowerVirtualServer(string vmId)
@@ -191,7 +225,7 @@ namespace MMNVS.Services
         void GetVirtualServersFromvCenter();
         List<JToken> GetVirtualServerFromvCenter(string VMId);
         Task<HttpStatusCode> StartVirtualServer(string vmId);
-        Task<HttpStatusCode> ShutdownVirtualServer(string vmId);
+        void ShutdownVirtualServer(string vmId);
         PowerStateEnum GetPowerVirtualServer(string vmId);
         PowerStateEnum GetvCenterState();
     }

@@ -28,6 +28,9 @@
             <th>
                 @Html.DisplayNameFor(model => model.LogItem[0].Datastore)
             </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LogItem[0].SystemState)
+            </th>
         </tr>
     </thead>
     <tbody>
@@ -50,6 +53,12 @@
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.DatastoreId)
+            </td>
+            <td>
+                @if(item.OperationType == MMNVS.Model.OperationTypeEnum.ChangeSystemState)
+                {
+                    @Html.DisplayFor(modelItem => item.SystemState)
+                }
             </td>
         </tr>
 }

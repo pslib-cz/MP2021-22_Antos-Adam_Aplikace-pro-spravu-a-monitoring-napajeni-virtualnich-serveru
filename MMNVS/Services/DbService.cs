@@ -22,7 +22,7 @@ namespace MMNVS.Services
 
             if (settings == null)
             {
-                settings = new AppSettings();
+                settings = new AppSettings() { DelayTime = 10, DelayTimeDatastores = 10, DelayTimeHosts = 20, DelayTimeVMStart = 25, MinBatteryTimeForShutdown = 1200, MinBatteryTimeForStart = 900};
                 _context.Settings.Add(settings);
                 _context.SaveChanges();
             }
@@ -52,6 +52,15 @@ namespace MMNVS.Services
         public List<VirtualServer> GetVirtualServers()
         {
             return _context.VirtualServers.OrderBy(s => s.Order).ToList();
+        }
+
+        public List<VirtualServer> GetVirtualServersShutdown()
+        {
+            return _context.VirtualServers.OrderBy(s => s.Order).Where(v => v.IsvCenter == false).ToList();
+        }
+        public List<VirtualServer> GetVirtualServersStart()
+        {
+            return _context.VirtualServers.OrderBy(s => s.Order).Where(v => v.IsvCenter == false && v.StartServerOnStart == true).ToList();
         }
         public List<UPS> GetUPSs()
         {
@@ -92,7 +101,7 @@ namespace MMNVS.Services
             AppSettings settings = GetSettingsWithoutInclude();
             settings.SystemState = state;
             UpdateSettings(settings);
-            _context.Log.Add(new LogItem { OperationType = OperationTypeEnum.ChangeSystemState, DateTime = DateTime.Now, SystemState = state });
+            Log(new LogItem { OperationType = OperationTypeEnum.ChangeSystemState, DateTime = DateTime.Now, SystemState = state });
         }
 
         public List<MyUser> GetUsers()
@@ -160,7 +169,7 @@ namespace MMNVS.Services
 
         public List<LogItem> GetLog()
         {
-            return _context.Log.OrderBy(l => l.DateTime).ToList();
+            return _context.Log.OrderByDescending(l => l.DateTime).ToList();
         }
 
         public bool IsVirtualStorageServer(string name)
@@ -177,7 +186,13 @@ namespace MMNVS.Services
             VirtualServer vCenter = _context.VirtualServers.FirstOrDefault(v => v.IsvCenter == true);
             return vCenter;
         }
-}
+
+        public void Log(LogItem logItem)
+        {
+            _context.Add(logItem);
+            _context.SaveChanges();
+        }
+    }
 
     public interface IDbService
     {
@@ -185,6 +200,8 @@ namespace MMNVS.Services
         AppSettings GetSettingsWithoutInclude();
         void UpdateSettings(AppSettings newAppSettings);
         List<VirtualServer> GetVirtualServers();
+        List<VirtualServer> GetVirtualServersShutdown();
+        List<VirtualServer> GetVirtualServersStart();
         VirtualServer GetVirtualServer(string id);
         VirtualServer GetVirtualServerByOrder(int? order);
         List<UPS> GetUPSs();
@@ -206,5 +223,6 @@ namespace MMNVS.Services
         HostServer GetHostServer(int? id);
         bool IsVirtualStorageServer(string name);
         VirtualServer GetvCenter();
+        void Log(LogItem logItem);
     }
 }
