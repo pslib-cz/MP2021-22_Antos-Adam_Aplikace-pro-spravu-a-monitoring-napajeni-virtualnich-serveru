@@ -4,6 +4,8 @@ using Microsoft.Extensions.Options;
 using MMNVS.Data;
 using MMNVS.Model;
 using MMNVS.Services;
+using System.Management.Automation;
+using System.Management.Automation.Runspaces;
 
 namespace MMNVS.Pages
 {
@@ -23,20 +25,14 @@ namespace MMNVS.Pages
         }
 
         public AppSettings Settings { get; set; }
+        public PowerStateEnum Test { get; set; }
 
         public async void OnGet()
         {
             Settings = _dbService.GetSettingsWithoutInclude();
-            //_vmService.ShutdownVirtualServer("vm-110");
 
-            //apiKey = _VMService.GetvCenterApiKey().Result;
-
-            //_dbService.GetSettings().vCenterIP = "69";
-            //test = _vmService.StartVirtualServer("vm-5838").Result.ToString();
-            //test = _vmService.GetPowerVirtualServer("vm-110").ToString();
-
-            //test = "vCenter na hostu: " + _serverService.FindvCenter().Name;
-            //_mailService.SendMail("Test1", "Errorrrrrr");
+            Test = _serverService.GetHostServeriLOStatus(_dbService.GetHostServer(1)).Result;
+            //_serverService.StartHost(_dbService.GetHostServer(1));
         }
     }
 }

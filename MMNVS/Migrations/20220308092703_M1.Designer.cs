@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MMNVS.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220217085641_M8")]
-    partial class M8
+    [Migration("20220308092703_M1")]
+    partial class M1
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -175,14 +175,29 @@ namespace MMNVS.Migrations
                     b.Property<int>("DelayTime")
                         .HasColumnType("int");
 
+                    b.Property<int>("DelayTimeDatastores")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DelayTimeHosts")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DelayTimeVMStart")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MinBatteryTimeForShutdown")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MinBatteryTimeForStart")
+                        .HasColumnType("int");
+
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("PrimaryUPSId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("SelectedProfileId")
-                        .HasColumnType("int");
+                    b.Property<bool>("SmtpIsSecure")
+                        .HasColumnType("bit");
 
                     b.Property<string>("SmtpPassword")
                         .HasColumnType("nvarchar(max)");
@@ -211,11 +226,12 @@ namespace MMNVS.Migrations
                     b.Property<string>("vCenterUsername")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("vCenterVersion")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("PrimaryUPSId");
-
-                    b.HasIndex("SelectedProfileId");
 
                     b.ToTable("Settings");
                 });
@@ -305,6 +321,9 @@ namespace MMNVS.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("OperationType")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SystemState")
                         .HasColumnType("int");
 
                     b.Property<int?>("UPSId")
@@ -401,55 +420,18 @@ namespace MMNVS.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "administrator",
+                            Id = "5b8083ee-6664-4165-b4e4-26aea09ee586",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "f8082a61-c4d1-4050-94a1-a5b558b6027c",
+                            ConcurrencyStamp = "ffb7a982-9b02-4750-9ac5-0deae53dd60d",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             NormalizedUserName = "ADMINISTRATOR",
-                            PasswordHash = "AQAAAAEAACcQAAAAEIEHxr8Usdsg37odcIl/ajCfubVkRHwfnjGo5twAr0DOTDrQSHzTxXckjJLXRIRr2A==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEFJEpingfwaQpDs8FnKWRd6f69x8griLbDAxXCA4KZfwp+xsSIIns2QYTGGEMhdJ9A==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "12d33982-993d-4084-9e56-816163c4a04e",
+                            SecurityStamp = "7407ba99-a2fa-4246-8b6d-c0daf52ff7e0",
                             TwoFactorEnabled = false,
                             UserName = "administrator"
                         });
-                });
-
-            modelBuilder.Entity("MMNVS.Model.SettingsProfile", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<int>("MinBatteryTimeForStart")
-                        .HasColumnType("int");
-
-                    b.Property<int>("MinUPSCount")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("TimeShutdownAfterPowerFailure")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TimeStartAfterPowerRecovery")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TimeStartDuringShutdown")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UPSDataLog")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UPSDataRefresh")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("SettingProfiles");
                 });
 
             modelBuilder.Entity("MMNVS.Model.UPS", b =>
@@ -533,8 +515,8 @@ namespace MMNVS.Migrations
                     b.Property<string>("VMId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("IPAddress")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<bool>("IsvCenter")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
@@ -545,15 +527,10 @@ namespace MMNVS.Migrations
                     b.Property<int?>("Order")
                         .HasColumnType("int");
 
-                    b.Property<int?>("PreferedHostId")
-                        .HasColumnType("int");
-
                     b.Property<bool>("StartServerOnStart")
                         .HasColumnType("bit");
 
                     b.HasKey("VMId");
-
-                    b.HasIndex("PreferedHostId");
 
                     b.ToTable("VirtualServers");
                 });
@@ -568,9 +545,6 @@ namespace MMNVS.Migrations
 
                     b.Property<int?>("HostId")
                         .HasColumnType("int");
-
-                    b.Property<string>("IPAddress")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
@@ -645,13 +619,7 @@ namespace MMNVS.Migrations
                         .WithMany("AppSettings")
                         .HasForeignKey("PrimaryUPSId");
 
-                    b.HasOne("MMNVS.Model.SettingsProfile", "SelectedProfile")
-                        .WithMany("AppSettings")
-                        .HasForeignKey("SelectedProfileId");
-
                     b.Navigation("PrimaryUPS");
-
-                    b.Navigation("SelectedProfile");
                 });
 
             modelBuilder.Entity("MMNVS.Model.Datastore", b =>
@@ -681,7 +649,7 @@ namespace MMNVS.Migrations
                         .WithMany("Log")
                         .HasForeignKey("VirtualServerVMId");
 
-                    b.HasOne("MMNVS.Model.VirtualStorageServer", null)
+                    b.HasOne("MMNVS.Model.VirtualStorageServer", "VirtualStorageServer")
                         .WithMany("Log")
                         .HasForeignKey("VirtualStorageServerId");
 
@@ -692,6 +660,8 @@ namespace MMNVS.Migrations
                     b.Navigation("UPS");
 
                     b.Navigation("VirtualServer");
+
+                    b.Navigation("VirtualStorageServer");
                 });
 
             modelBuilder.Entity("MMNVS.Model.UPSLogItem", b =>
@@ -701,15 +671,6 @@ namespace MMNVS.Migrations
                         .HasForeignKey("UPSId");
 
                     b.Navigation("UPS");
-                });
-
-            modelBuilder.Entity("MMNVS.Model.VirtualServer", b =>
-                {
-                    b.HasOne("MMNVS.Model.HostServer", "PreferedHost")
-                        .WithMany("VirtualServers")
-                        .HasForeignKey("PreferedHostId");
-
-                    b.Navigation("PreferedHost");
                 });
 
             modelBuilder.Entity("MMNVS.Model.VirtualStorageServer", b =>
@@ -730,14 +691,7 @@ namespace MMNVS.Migrations
                 {
                     b.Navigation("Log");
 
-                    b.Navigation("VirtualServers");
-
                     b.Navigation("VirtualStorageServers");
-                });
-
-            modelBuilder.Entity("MMNVS.Model.SettingsProfile", b =>
-                {
-                    b.Navigation("AppSettings");
                 });
 
             modelBuilder.Entity("MMNVS.Model.UPS", b =>

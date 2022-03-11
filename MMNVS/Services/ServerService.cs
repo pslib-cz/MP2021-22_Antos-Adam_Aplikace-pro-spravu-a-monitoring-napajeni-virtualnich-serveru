@@ -3,6 +3,8 @@ using Lextm.SharpSnmpLib.Messaging;
 using Microsoft.AspNetCore.Mvc;
 using MMNVS.Data;
 using MMNVS.Model;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Collections.ObjectModel;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
@@ -223,26 +225,136 @@ namespace MMNVS.Services
 
             Pipeline pipeline = runspace.CreatePipeline();
             pipeline.Commands.AddScript("Set-ExecutionPolicy Unrestricted");
-            pipeline.Commands.AddScript("Import-Module VMware.VimAutomation.Core"/*"Get-Module -Name VMware* -ListAvailable | Import-Module"*/);
+            pipeline.Commands.AddScript("Import-Module VMware.VimAutomation.Core");
             pipeline.Commands.AddScript("Connect-VIServer -Server " + host.ESXiIPAddress + " -Protocol https -User " + host.ESXiUser + " -Password " + host.ESXiPassword + " -ErrorAction Stop");
             pipeline.Commands.AddScript("Get-VM -Name " + storageServer.Name + " -Server " + host.ESXiIPAddress + " | Start-VM");
             pipeline.Invoke();
             runspace.Close();
+        }
+
+        public async void StartHost(HostServer host)
+        {
+            string url = "https://" + host.iLoIPAddress + "/redfish/v1/Systems/1/Actions/ComputerSystem.Reset"; //Oem/Hpe/HpeComputerSystemExt.PowerButton/
+            string authtoken = GetiLOApiKey(host);
+
+            var myData = new
+            {
+                Action = "PowerButton",
+                PushType = "Press",
+                Target = "/Oem/Hp"
+            };
+
+            string jsonData = JsonConvert.SerializeObject(myData);
+
+            var handler = new HttpClientHandler();
+            handler.ClientCertificateOptions = ClientCertificateOption.Manual;
+            handler.ServerCertificateCustomValidationCallback =
+                (httpRequestMessage, cert, cetChain, policyErrors) =>
+                {
+                    return true;
+                };
+
+            var client = new HttpClient(handler);
+
+            using (HttpClient httpClient = new HttpClient(handler))
+            {
+                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, url);
+                request.Content = new StringContent(jsonData, System.Text.Encoding.UTF8, "application/json");
+                request.Headers.Add("X-Auth-Token", authtoken);
+                request.Headers.Add("OData-Version", "4.0");
+                var response = await httpClient.SendAsync(request);
+            }
+        }
+
+        public async Task<PowerStateEnum> GetHostServeriLOStatus(HostServer host)
+        {
+            try
+            {
+                string authtoken = GetiLOApiKey(host);
+                string url = "https://" + host.iLoIPAddress + "/redfish/v1/Systems/1/";
+                var handler = new HttpClientHandler();
+                handler.ClientCertificateOptions = ClientCertificateOption.Manual;
+                handler.ServerCertificateCustomValidationCallback =
+                    (httpRequestMessage, cert, cetChain, policyErrors) =>
+                    {
+                        return true;
+                    };
+
+                var client = new HttpClient(handler);
+                using (var httpClient = new HttpClient(handler))
+                {
+                    HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url);
+                    request.Headers.Add("X-Auth-Token", authtoken);
+                    using (var response = (await httpClient.SendAsync(request)))
+                    {
+                        string apiResponse = await response.Content.ReadAsStringAsync();
+                        Console.WriteLine(apiResponse);
+                        var jsonResponse = JObject.Parse(response.Content.ReadAsStringAsync().Result);
+                        string value = jsonResponse.SelectToken("$.PowerState").Value<string>();
+                        if (value == "On") return PowerStateEnum.PoweredOn;
+                        else if (value == "Off") return PowerStateEnum.PoweredOff;
+                        else return PowerStateEnum.Unknown;
+                    }
+                }
+            }
+            catch
+            {
+                return PowerStateEnum.Unknown;
+            }
+        }
+
+        public string GetiLOApiKey(HostServer host)
+        {
+            string url = "https://" + host.iLoIPAddress + "/redfish/v1/sessions/";
+            string username = host.iLoUser;
+            string password = host.iLoPassword;
+
+            var myData = new
+            {
+                UserName = username,
+                Password = password,
+            };
+
+            string jsonData = JsonConvert.SerializeObject(myData);
+
+            var handler = new HttpClientHandler();
+            handler.ClientCertificateOptions = ClientCertificateOption.Manual;
+            handler.ServerCertificateCustomValidationCallback =
+                (httpRequestMessage, cert, cetChain, policyErrors) =>
+                {
+                    return true;
+                };
+
+            var client = new HttpClient(handler);
+
+            using (HttpClient httpClient = new HttpClient(handler))
+            {
+                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, url);
+                request.Content = new StringContent(jsonData, System.Text.Encoding.UTF8, "application/json");
+                var response = httpClient.SendAsync(request);
+                IEnumerable<string> cookieHeader;
+                response.Result.Headers.TryGetValues("X-Auth-Token", out cookieHeader);
+                string token = cookieHeader.ToArray()[0];
+                return token;
+            }
         }
     }
     public interface IServerService
     {
         void ShutdownStorageServer(VirtualStorageServer storageServer);
         void ShutdownHost(HostServer host);
+        void StartHost(HostServer host);
         PowerStateEnum GetStorageServerStatus(VirtualStorageServer storageServer);
-        void/*ActionResult*/ ServerDataStoreCheck(int storageServerId);
-        void/*ActionResult*/ StorageRescan(HostServer host);
+        void ServerDataStoreCheck(int storageServerId);
+        void StorageRescan(HostServer host);
         void CheckStartvCenterHost(HostServer host);
         void CheckShutdownvCenterHost(HostServer host);
         HostServer FindStartvCenter();
         HostServer FindShutdownvCenter();
         PowerStateEnum GetHostServerStatus(HostServer host);
+        Task<PowerStateEnum> GetHostServeriLOStatus(HostServer host);
         void StartStorageServer(VirtualStorageServer storageServer);
         bool DataStoreCheck(Datastore datastore);
+        string GetiLOApiKey(HostServer host);
     }
 }

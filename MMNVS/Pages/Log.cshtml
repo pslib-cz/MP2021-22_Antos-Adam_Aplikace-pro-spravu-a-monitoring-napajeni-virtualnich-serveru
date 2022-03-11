@@ -64,3 +64,18 @@
 }
     </tbody>
 </table>
+<ul class="pagination justify-content-center">
+    @for(int i = 1; i <= @Model.PagesCount; i++)
+    {
+            @if(i == Model.PageNumber)
+            {
+                <li class="page-item active" aria-current="page">
+                    <a class="page-link" asp-page="Log" asp-route-pageNumber="@i">@i</a>
+                </li>
+            }
+            else
+            {
+                <li class="page-item"><a class="page-link" asp-page="Log" asp-route-pageNumber="@i">@i</a></li>
+            }
+    }
+</ul>

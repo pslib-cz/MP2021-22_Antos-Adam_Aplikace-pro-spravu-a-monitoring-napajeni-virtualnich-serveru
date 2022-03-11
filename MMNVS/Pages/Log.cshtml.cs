@@ -21,11 +21,16 @@ namespace MMNVS.Pages
             _dbService = dbService;
         }
 
-        public IList<LogItem> LogItem { get;set; }
+        public IList<LogItem> LogItem { get; set; }
+        public int PagesCount { get; set; }
+        public int PageNumber { get; set; }
 
-        public void OnGet()
+        public void OnGet(int pageNumber = 1)
         {
-            LogItem = _dbService.GetLog();
+            PageNumber = pageNumber;
+            int itemsPerPage = 30;
+            LogItem = _dbService.GetLog(itemsPerPage, pageNumber);
+            PagesCount = _dbService.GetLogPagesCount(itemsPerPage);
         }
     }
 }

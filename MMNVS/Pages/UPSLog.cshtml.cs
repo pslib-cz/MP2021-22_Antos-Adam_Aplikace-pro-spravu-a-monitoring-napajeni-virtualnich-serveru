@@ -22,10 +22,15 @@ namespace MMNVS.Pages
         }
 
         public IList<UPSLogItem> UPSLogItem { get;set; }
+        public int PagesCount { get; set; }
+        public int PageNumber { get; set; }
 
-        public void OnGet()
+        public void OnGet(int pageNumber = 1)
         {
-            UPSLogItem = _dbService.GetUPSLog();
+            PageNumber = pageNumber;
+            int itemsPerPage = 30;
+            UPSLogItem = _dbService.GetUPSLog(itemsPerPage, pageNumber);
+            PagesCount = _dbService.GetUPSLogPagesCount(itemsPerPage);
         }
     }
 }

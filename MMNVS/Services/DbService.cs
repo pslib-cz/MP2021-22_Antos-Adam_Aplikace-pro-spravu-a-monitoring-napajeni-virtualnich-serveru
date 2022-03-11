@@ -162,14 +162,18 @@ namespace MMNVS.Services
             _context.SaveChanges();
         }
 
-        public List<UPSLogItem> GetUPSLog()
+        public List<UPSLogItem> GetUPSLog(int count = 0, int start = 1)
         {
-            return _context.UPSLog.Include(u => u.UPS).OrderByDescending(u => u.DateTime).ToList();
+            if (count == 0) return _context.UPSLog.OrderByDescending(l => l.DateTime).ToList();
+            int _start = start - 1;
+            return _context.UPSLog.Include(u => u.UPS).OrderByDescending(l => l.DateTime).Skip(_start * count).Take(count).ToList();
         }
 
-        public List<LogItem> GetLog()
+        public List<LogItem> GetLog(int count = 0, int start = 1)
         {
-            return _context.Log.OrderByDescending(l => l.DateTime).ToList();
+            if (count == 0) return _context.Log.OrderByDescending(l => l.DateTime).ToList();
+            int _start = start - 1;
+            return _context.Log.OrderByDescending(l => l.DateTime).Skip(_start * count).Take(count).ToList();
         }
 
         public bool IsVirtualStorageServer(string name)
@@ -192,6 +196,17 @@ namespace MMNVS.Services
             _context.Add(logItem);
             _context.SaveChanges();
         }
+
+        public int GetLogPagesCount(int count)
+        {
+            int itemsCount = _context.Log.Count();
+            return (itemsCount / count) + 1;
+        }
+        public int GetUPSLogPagesCount(int count)
+        {
+            int itemsCount = _context.UPSLog.Count();
+            return (itemsCount / count) + 1;
+        }
     }
 
     public interface IDbService
@@ -207,8 +222,8 @@ namespace MMNVS.Services
         List<UPS> GetUPSs();
         List<HostServer> GetHostServers();
         List<VirtualStorageServer> GetStorageServers(int hostId);
-        List<UPSLogItem> GetUPSLog();
-        List<LogItem> GetLog();
+        List<UPSLogItem> GetUPSLog(int count = 0, int start = 1);
+        List<LogItem> GetLog(int count = 0, int start = 1);
         void AddItem(Object item);
         void EditItem(Object item);
         void RemoveItem(Object item);
@@ -224,5 +239,7 @@ namespace MMNVS.Services
         bool IsVirtualStorageServer(string name);
         VirtualServer GetvCenter();
         void Log(LogItem logItem);
+        int GetLogPagesCount(int count = 1);
+        int GetUPSLogPagesCount(int count = 1);
     }
 }

@@ -418,15 +418,15 @@ namespace MMNVS.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "ed8a532c-c62d-4f11-a6a5-765976a85de0",
+                            Id = "5b8083ee-6664-4165-b4e4-26aea09ee586",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "541bf5a0-ce9d-4ea1-a883-a7c489a20512",
+                            ConcurrencyStamp = "ffb7a982-9b02-4750-9ac5-0deae53dd60d",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             NormalizedUserName = "ADMINISTRATOR",
-                            PasswordHash = "AQAAAAEAACcQAAAAEEGDcQRI8H3JaAm5ZGG5Cq0wkPDeidr/s2jpfTtgfTGkKd+wzFABbs3aeg4OQHr4Pw==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEFJEpingfwaQpDs8FnKWRd6f69x8griLbDAxXCA4KZfwp+xsSIIns2QYTGGEMhdJ9A==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "9d6f6eb7-e16e-47f7-a7f6-c580f30b26d5",
+                            SecurityStamp = "7407ba99-a2fa-4246-8b6d-c0daf52ff7e0",
                             TwoFactorEnabled = false,
                             UserName = "administrator"
                         });
