@@ -1,31 +1,25 @@
-﻿using Lextm.SharpSnmpLib;
-using Lextm.SharpSnmpLib.Messaging;
-using Microsoft.AspNetCore.Mvc;
-using MMNVS.Data;
+﻿#nullable disable
 using MMNVS.Model;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Collections.ObjectModel;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
-using System.Net;
 using System.Text;
 
 namespace MMNVS.Services
 {
     public class ServerService : IServerService
     {
-        private readonly ApplicationDbContext _context;
         private readonly IDbService _dbService;
 
-        public ServerService(ApplicationDbContext context, IDbService dbService)
+        public ServerService(IDbService dbService)
         {
-            _context = context;
             _dbService = dbService;
         }
-        public void/*ActionResult*/ ServerDataStoreCheck(int storageServerId)
+        public void ServerDataStoreCheck(int storageServerId)
         {
-            VirtualStorageServer storageServer = _context.VirtualStorageServers.FirstOrDefault(s => s.Id == storageServerId);
+            VirtualStorageServer storageServer = _dbService.GetStorageServer(storageServerId);
             if (storageServer != null)
             {
                 foreach (Datastore datastore in storageServer.Datastores)
@@ -37,9 +31,8 @@ namespace MMNVS.Services
         }
         public bool DataStoreCheck(Datastore datastore)
         {
-            string vCenterName = _dbService.GetSettingsWithoutInclude().vCenterIP;
-            VirtualStorageServer storageServer = _context.VirtualStorageServers.FirstOrDefault(s => s.Id == datastore.VirtualStorageServerId);
-            HostServer host = _context.HostServers.FirstOrDefault(h => h.Id == storageServer.HostId);
+            VirtualStorageServer storageServer = _dbService.GetStorageServer(datastore.VirtualStorageServerId);
+            HostServer host = _dbService.GetHostServer(storageServer.HostId);
             //kontrola dostupnosti datastoru
             try
             {
@@ -62,13 +55,12 @@ namespace MMNVS.Services
         }
         public void/*ActionResult*/ StorageRescan(HostServer host) //rescan seznamu virtuálních datastorů (po spuštění VSA serverů)
         {
-            string vCenterName = _dbService.GetSettingsWithoutInclude().vCenterIP;
             Runspace runspace = RunspaceFactory.CreateRunspace();
             runspace.Open();
 
             Pipeline pipeline = runspace.CreatePipeline();
             pipeline.Commands.AddScript("Set-ExecutionPolicy Unrestricted");
-            pipeline.Commands.AddScript("Import-Module VMware.VimAutomation.Core"/*"Get-Module -Name VMware* -ListAvailable | Import-Module"*/);
+            pipeline.Commands.AddScript("Import-Module VMware.VimAutomation.Core");
             pipeline.Commands.AddScript("Connect-VIServer -Server " + host.ESXiIPAddress + " -Protocol https -User " + host.ESXiUser + " -Password " + host.ESXiPassword + " -ErrorAction Stop");
             pipeline.Commands.AddScript("Get-VMHostStorage -RescanAllHba");
             pipeline.Invoke();
@@ -77,7 +69,7 @@ namespace MMNVS.Services
 
         public HostServer FindStartvCenter()
         {
-            List<HostServer> hostServers = _context.HostServers.ToList();
+            List<HostServer> hostServers = _dbService.GetHostServers();
             foreach (HostServer hostServer in hostServers)
             {
                 try
@@ -100,7 +92,7 @@ namespace MMNVS.Services
 
             Pipeline pipeline = runspace.CreatePipeline();
             pipeline.Commands.AddScript("Set-ExecutionPolicy Unrestricted");
-            pipeline.Commands.AddScript("Import-Module VMware.VimAutomation.Core"/*"Get-Module -Name VMware* -ListAvailable | Import-Module"*/);
+            pipeline.Commands.AddScript("Import-Module VMware.VimAutomation.Core");
             pipeline.Commands.AddScript("Connect-VIServer -Server " + host.ESXiIPAddress + " -Protocol https -User "+ host.ESXiUser +" -Password "+ host.ESXiPassword +" -ErrorAction Stop");
             pipeline.Commands.AddScript("Get-VM -Name "+ vCenterName + " -Server " + host.ESXiIPAddress + " | Start-VM" + " -ErrorAction Stop");
             pipeline.Invoke();
@@ -109,7 +101,7 @@ namespace MMNVS.Services
 
         public HostServer FindShutdownvCenter()
         {
-            List<HostServer> hostServers = _context.HostServers.ToList();
+            List<HostServer> hostServers = _dbService.GetHostServers();
             foreach (HostServer hostServer in hostServers)
             {
                 try
@@ -132,7 +124,7 @@ namespace MMNVS.Services
 
             Pipeline pipeline = runspace.CreatePipeline();
             pipeline.Commands.AddScript("Set-ExecutionPolicy Unrestricted");
-            pipeline.Commands.AddScript("Import-Module VMware.VimAutomation.Core"/*"Get-Module -Name VMware* -ListAvailable | Import-Module"*/);
+            pipeline.Commands.AddScript("Import-Module VMware.VimAutomation.Core");
             pipeline.Commands.AddScript("Connect-VIServer -Server " + host.ESXiIPAddress + " -Protocol https -User " + host.ESXiUser + " -Password " + host.ESXiPassword + " -ErrorAction Stop");
             pipeline.Commands.AddScript("Get-VM -Name " + vCenterName + " -Server " + host.ESXiIPAddress + " | Shutdown-VMGuest -Confirm:$false");
             pipeline.Invoke();
@@ -141,13 +133,13 @@ namespace MMNVS.Services
 
         public void ShutdownStorageServer(VirtualStorageServer storageServer)
         {
-            HostServer host = _context.HostServers.FirstOrDefault(h => h.Id == storageServer.HostId);
+            HostServer host = _dbService.GetHostServer(storageServer.HostId);
             Runspace runspace = RunspaceFactory.CreateRunspace();
             runspace.Open();
 
             Pipeline pipeline = runspace.CreatePipeline();
             pipeline.Commands.AddScript("Set-ExecutionPolicy Unrestricted");
-            pipeline.Commands.AddScript("Import-Module VMware.VimAutomation.Core"/*"Get-Module -Name VMware* -ListAvailable | Import-Module"*/);
+            pipeline.Commands.AddScript("Import-Module VMware.VimAutomation.Core");
             pipeline.Commands.AddScript("Connect-VIServer -Server " + host.ESXiIPAddress + " -Protocol https -User " + host.ESXiUser + " -Password " + host.ESXiPassword + " -ErrorAction Stop");
             pipeline.Commands.AddScript("Get-VM -Name " + storageServer.Name + " | Shutdown-VMGuest -Confirm:$false");
             pipeline.Invoke();
@@ -161,7 +153,7 @@ namespace MMNVS.Services
 
             Pipeline pipeline = runspace.CreatePipeline();
             pipeline.Commands.AddScript("Set-ExecutionPolicy Unrestricted");
-            pipeline.Commands.AddScript("Import-Module VMware.VimAutomation.Core"/*"Get-Module -Name VMware* -ListAvailable | Import-Module"*/);
+            pipeline.Commands.AddScript("Import-Module VMware.VimAutomation.Core");
             pipeline.Commands.AddScript("Connect-VIServer -Server " + host.ESXiIPAddress + " -Protocol https -User " + host.ESXiUser + " -Password " + host.ESXiPassword + " -ErrorAction Stop");
             pipeline.Commands.AddScript("Stop-VMHost -VMHost " + host.ESXiIPAddress + " -Force -Confirm:$false");
             pipeline.Invoke();
@@ -173,13 +165,13 @@ namespace MMNVS.Services
             try
             {
                 string vCenterName = _dbService.GetSettingsWithoutInclude().vCenterIP;
-                HostServer host = _context.HostServers.FirstOrDefault(h => h.Id == storageServer.HostId);
+                HostServer host = _dbService.GetHostServer(storageServer.HostId);
                 Runspace runspace = RunspaceFactory.CreateRunspace();
                 runspace.Open();
 
                 Pipeline pipeline = runspace.CreatePipeline();
                 pipeline.Commands.AddScript("Set-ExecutionPolicy Unrestricted");
-                pipeline.Commands.AddScript("Import-Module VMware.VimAutomation.Core"/*"Get-Module -Name VMware* -ListAvailable | Import-Module"*/);
+                pipeline.Commands.AddScript("Import-Module VMware.VimAutomation.Core");
                 pipeline.Commands.AddScript("Connect-VIServer -Server " + host.ESXiIPAddress + " -Protocol https -User " + host.ESXiUser + " -Password " + host.ESXiPassword + " -ErrorAction Stop");
                 pipeline.Commands.AddScript("(Get-VM -Name \"" + storageServer.Name + "\").Powerstate");
                 pipeline.Commands.Add("Out-string");
@@ -205,7 +197,7 @@ namespace MMNVS.Services
 
                 Pipeline pipeline = runspace.CreatePipeline();
                 pipeline.Commands.AddScript("Set-ExecutionPolicy Unrestricted");
-                pipeline.Commands.AddScript("Import-Module VMware.VimAutomation.Core"/*"Get-Module -Name VMware* -ListAvailable | Import-Module"*/);
+                pipeline.Commands.AddScript("Import-Module VMware.VimAutomation.Core");
                 pipeline.Commands.AddScript("Connect-VIServer -Server " + host.ESXiIPAddress + " -Protocol https -User " + host.ESXiUser + " -Password " + host.ESXiPassword + " -ErrorAction Stop"); pipeline.Invoke();
                 runspace.Close();
                 return PowerStateEnum.PoweredOn;
@@ -219,7 +211,7 @@ namespace MMNVS.Services
 
         public void StartStorageServer(VirtualStorageServer storageServer)
         {
-            HostServer host = _context.HostServers.FirstOrDefault(h => h.Id == storageServer.HostId);
+            HostServer host = _dbService.GetHostServer(storageServer.HostId);
             Runspace runspace = RunspaceFactory.CreateRunspace();
             runspace.Open();
 
@@ -234,7 +226,7 @@ namespace MMNVS.Services
 
         public async void StartHost(HostServer host)
         {
-            string url = "https://" + host.iLoIPAddress + "/redfish/v1/Systems/1/Actions/ComputerSystem.Reset"; //Oem/Hpe/HpeComputerSystemExt.PowerButton/
+            string url = "https://" + host.iLoIPAddress + "/redfish/v1/Systems/1/Actions/ComputerSystem.Reset";
             string authtoken = GetiLOApiKey(host);
 
             var myData = new
@@ -329,8 +321,9 @@ namespace MMNVS.Services
 
             using (HttpClient httpClient = new HttpClient(handler))
             {
+                httpClient.Timeout = TimeSpan.FromSeconds(3);
                 HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, url);
-                request.Content = new StringContent(jsonData, System.Text.Encoding.UTF8, "application/json");
+                request.Content = new StringContent(jsonData, Encoding.UTF8, "application/json");
                 var response = httpClient.SendAsync(request);
                 IEnumerable<string> cookieHeader;
                 response.Result.Headers.TryGetValues("X-Auth-Token", out cookieHeader);

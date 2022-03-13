@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿#nullable disable
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
-using MMNVS.Model;
 using MMNVS.Services;
 
 namespace MMNVS.Pages.UPS
@@ -21,7 +15,7 @@ namespace MMNVS.Pages.UPS
 
         public List<Model.UPS> UPS { get;set; }
 
-        public async Task OnGetAsync()
+        public void OnGet()
         {
             UPS = _dbService.GetUPSs();
         }

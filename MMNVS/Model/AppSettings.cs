@@ -67,9 +67,11 @@ namespace MMNVS.Model
         [Display(Name = "Čas čekání při spouštění VM (s)")]
         public int DelayTimeVMStart { get; set; }
         [Display(Name = "Minimální výdrž baterie pro start (s)")]
-        public int MinBatteryTimeForStart { get; set; } //Minimální výdrž baterie pro bezpečný start VM v sec
+        public int MinBatteryTimeForStart { get; set; } //Minimální výdrž baterie pro bezpečný start v sec
         [Display(Name = "Výdrž baterie pro zahájení vypínání (s)")]
-        public int MinBatteryTimeForShutdown { get; set; } //Minimální výdrž baterie pro bezpečný start VM v sec
+        public int MinBatteryTimeForShutdown { get; set; } //Minimální výdrž baterie pro bezpečné vypnutí v sec
+        [Display(Name = "Výdrž baterie pro zahájení vypínání hostů (s)")]
+        public int BatteryTimeForShutdownHosts { get; set; }
         public SystemStateEnum SystemState { get; set; }
     }
 }

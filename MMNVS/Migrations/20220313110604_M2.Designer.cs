@@ -4,6 +4,7 @@ using MMNVS.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MMNVS.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220313110604_M2")]
+    partial class M2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -169,9 +171,6 @@ namespace MMNVS.Migrations
 
                     b.Property<string>("AdministratorEmail")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("BatteryTimeForShutdownHosts")
-                        .HasColumnType("int");
 
                     b.Property<int>("DelayTime")
                         .HasColumnType("int");
@@ -418,15 +417,15 @@ namespace MMNVS.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "84e2d884-181f-41b5-8137-c47b8a577011",
+                            Id = "eb6ff04e-1704-4d42-9b11-1f9ffbc403ea",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "df2beb6e-0d39-4acf-b6aa-43ff3dde1cf4",
+                            ConcurrencyStamp = "4f4c87b5-2934-4ed1-96a1-8162e0714138",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             NormalizedUserName = "ADMINISTRATOR",
-                            PasswordHash = "AQAAAAEAACcQAAAAEJiQ3nP74GFBu9dHClqpiGe+B14Z3k5pJZeuu/LiDmaL28W6FiWoRLuRHPpdyOdoZQ==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEJpppji8nrZgTtnfPO3/cKI/X/nv1lcMdiEM6tc+GWD4J/QdP3DB/RA7ncKjPb9/kw==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "88961103-d410-4d53-9c20-9d1f2563bbad",
+                            SecurityStamp = "0d571556-0c53-424a-9366-32101a7e21b4",
                             TwoFactorEnabled = false,
                             UserName = "administrator"
                         });

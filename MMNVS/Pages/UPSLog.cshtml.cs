@@ -1,12 +1,6 @@
 ﻿#nullable disable
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
-using MMNVS.Data;
 using MMNVS.Model;
 using MMNVS.Services;
 
@@ -21,16 +15,22 @@ namespace MMNVS.Pages
             _dbService = dbService;
         }
 
-        public IList<UPSLogItem> UPSLogItem { get;set; }
+        public List<UPSLogItem> UPSLogItem { get;set; }
         public int PagesCount { get; set; }
         public int PageNumber { get; set; }
+        [BindProperty]
+        public int ItemsPerPage { get; set; }
 
-        public void OnGet(int pageNumber = 1)
+        public void OnGet(int pageNumber = 1, int itemsPerPage = 30)
         {
             PageNumber = pageNumber;
-            int itemsPerPage = 30;
+            ItemsPerPage = itemsPerPage;
             UPSLogItem = _dbService.GetUPSLog(itemsPerPage, pageNumber);
             PagesCount = _dbService.GetUPSLogPagesCount(itemsPerPage);
+        }
+        public ActionResult OnPost()
+        {
+            return Redirect("/UPSLog?pageNumber=1&itemsPerPage=" + ItemsPerPage);
         }
     }
 }

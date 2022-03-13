@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿#nullable disable
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
-using MMNVS.Data;
 using MMNVS.Model;
 using MMNVS.Services;
 using Newtonsoft.Json.Linq;
@@ -14,12 +9,12 @@ namespace MMNVS.Pages.VirtualServers
 {
     public class DetailsModel : PageModel
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IDbService _dbService;
         private readonly IVMService _vmService;
 
-        public DetailsModel(ApplicationDbContext context, IVMService vmService)
+        public DetailsModel(IDbService dbService, IVMService vmService)
         {
-            _context = context;
+            _dbService = dbService;
             _vmService = vmService;
         }
 
@@ -28,14 +23,14 @@ namespace MMNVS.Pages.VirtualServers
         public string SuccessMessage { get; set; }
         public string ErrorMessage { get; set; }
 
-        public async Task<IActionResult> OnGetAsync(string id)
+        public ActionResult OnGet(string id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            VirtualServer = await _context.VirtualServers.FirstOrDefaultAsync(m => m.VMId == id);
+            VirtualServer = _dbService.GetVirtualServer(id);
 
             if (VirtualServer == null)
             {

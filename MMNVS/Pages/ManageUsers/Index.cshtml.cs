@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+#nullable disable
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using MMNVS.Model;
 using MMNVS.Services;
@@ -9,13 +9,14 @@ namespace MMNVS.Pages.ManageUsers
     public class IndexModel : PageModel
     {
         private readonly IDbService _dbService;
-        public List<MyUser> Users { get; set; }
-        public string UserId { get; set; }
 
         public IndexModel(IDbService dbService)
         {
             _dbService = dbService;
         }
+
+        public List<MyUser> Users { get; set; }
+        public string UserId { get; set; }
 
         public void OnGet()
         {

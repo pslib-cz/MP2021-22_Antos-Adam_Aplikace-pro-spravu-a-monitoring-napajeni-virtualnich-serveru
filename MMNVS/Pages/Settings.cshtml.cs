@@ -1,13 +1,7 @@
 ﻿#nullable disable
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using MMNVS.Data;
 using MMNVS.Model;
 using MMNVS.Services;
 
@@ -15,7 +9,6 @@ namespace MMNVS.Pages
 {
     public class SettingsModel : PageModel
     {
-        private readonly ApplicationDbContext _context;
         private readonly IDbService _dbService;
         private readonly IMailService _mailService;
         private readonly IVMService _vmService;
@@ -25,9 +18,8 @@ namespace MMNVS.Pages
         [TempData]
         public string ErrorMessage { get; set; }
 
-        public SettingsModel(ApplicationDbContext context, IDbService dbService, IMailService mailService, IVMService vmService)
+        public SettingsModel(IDbService dbService, IMailService mailService, IVMService vmService)
         {
-            _context = context;
             _dbService = dbService;
             _mailService = mailService;
             _vmService = vmService;
@@ -36,16 +28,16 @@ namespace MMNVS.Pages
         [BindProperty]
         public AppSettings Settings { get; set; }
 
-        public async Task<IActionResult> OnGetAsync()
+        public ActionResult OnGet()
         {
 
             Settings = _dbService.GetSettings();
 
-            ViewData["PrimaryUPSId"] = new SelectList(_context.UPS, "Id", "Name");            
+            ViewData["PrimaryUPSId"] = new SelectList(_dbService.GetUPSs(), "Id", "Name");            
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync()
+        public ActionResult OnPost()
         {
             if (!ModelState.IsValid)
             {
@@ -54,10 +46,11 @@ namespace MMNVS.Pages
             _dbService.UpdateSettings(Settings);
             if (_vmService.GetvCenterState() == PowerStateEnum.PoweredOn) SuccessMessage = "Připojení k vCenter serveru bylo úspěšné. Změny byly uloženy.";
             else ErrorMessage = "Při připojování k serveru se vyskytla neočekávaná chyba, zkontrolujte správnost údajů!";
-            return RedirectToPage("Settings");
+            //return RedirectToPage("Settings");
+            return RedirectToPage();
         }
 
-        public async Task<IActionResult> OnPostTestMail()
+        public ActionResult OnPostTestMail()
         {
             if (!ModelState.IsValid)
             {
@@ -74,7 +67,7 @@ namespace MMNVS.Pages
             {
                 ErrorMessage = "Vyskytla neočekávaná chyba, překontrolujte nastavení SMTP!";
             }
-            return RedirectToPage("Settings");
+            return RedirectToPage();
         }
     }
 }

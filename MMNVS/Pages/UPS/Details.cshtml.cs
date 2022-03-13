@@ -1,14 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
-using Lextm.SharpSnmpLib;
-using Lextm.SharpSnmpLib.Messaging;
+﻿#nullable disable
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
-using MMNVS.Data;
 using MMNVS.Model;
 using MMNVS.Services;
 
@@ -16,12 +8,12 @@ namespace MMNVS.Pages.UPS
 {
     public class DetailsModel : PageModel
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IDbService _dbService;
         private readonly IUPSService _upsService;
 
-        public DetailsModel(ApplicationDbContext context, IUPSService upsService)
+        public DetailsModel(IDbService dbService, IUPSService upsService)
         {
-            _context = context;
+            _dbService = dbService;
             _upsService = upsService;
         }
 
@@ -31,13 +23,13 @@ namespace MMNVS.Pages.UPS
         public string SuccessMessage { get; set; }
         public string ErrorMessage { get; set; }
 
-        public async Task<IActionResult> OnGetAsync(int? id)
+        public IActionResult OnGet(int? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
-            UPS = await _context.UPS.FirstOrDefaultAsync(m => m.Id == id);
+            UPS = _dbService.GetUPS(id);
 
             UPSData = _upsService.GetUPSLogItem(UPS);
             if (UPSData.Error == false) SuccessMessage = "Stavová data byla úspěšně načtena.";

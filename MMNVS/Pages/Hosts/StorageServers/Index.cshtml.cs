@@ -1,33 +1,26 @@
 ﻿#nullable disable
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
-using MMNVS.Data;
 using MMNVS.Model;
+using MMNVS.Services;
 
 namespace MMNVS.Pages.Hosts.StorageServers
 {
     public class IndexModel : PageModel
     {
-        private readonly ApplicationDbContext _context;
-        public HostServer HostServer { get; set; }
+        private readonly IDbService _dbService;
 
-        public IndexModel(ApplicationDbContext context)
+        public IndexModel(IDbService dbService)
         {
-            _context = context;
+            _dbService = dbService;
         }
 
-        public IList<VirtualStorageServer> VirtualStorageServer { get;set; }
+        public HostServer HostServer { get; set; }
+        public IList<VirtualStorageServer> VirtualStorageServers { get;set; }
 
-        public async Task OnGetAsync(int hostServerId)
+        public void OnGet(int hostServerId)
         {
-            VirtualStorageServer = await _context.VirtualStorageServers
-                .Include(v => v.Host).Where(s => s.HostId == hostServerId).ToListAsync();
-            HostServer = await _context.HostServers.FirstOrDefaultAsync(h => h.Id == hostServerId);
+            VirtualStorageServers = _dbService.GetStorageServers(hostServerId);
+            HostServer = _dbService.GetHostServer(hostServerId);
         }
     }
 }

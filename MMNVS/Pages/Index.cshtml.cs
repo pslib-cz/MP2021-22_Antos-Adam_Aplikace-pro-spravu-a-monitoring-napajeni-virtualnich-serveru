@@ -1,38 +1,45 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿#nullable disable
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Options;
-using MMNVS.Data;
 using MMNVS.Model;
 using MMNVS.Services;
-using System.Management.Automation;
-using System.Management.Automation.Runspaces;
 
 namespace MMNVS.Pages
 {
     public class IndexModel : PageModel
     {
-        private readonly IVMService _vmService;
         private readonly IDbService _dbService;
         private readonly IServerService _serverService;
-        private readonly IMailService _mailService;
+        private readonly IUPSService _upsService;
 
-        public IndexModel(IVMService vmService, IDbService dbService, IServerService serverService, IMailService mailService)
+        public IndexModel(IDbService dbService, IServerService serverService, IUPSService upsService)
         {
-            _vmService = vmService;
             _dbService = dbService;
             _serverService = serverService;
-            _mailService = mailService;
+            _upsService = upsService;
         }
 
         public AppSettings Settings { get; set; }
-        public PowerStateEnum Test { get; set; }
+        public List<UPSLogItem> UPSLogItems { get; set; }
+        public List<HostServer> HostServers { get; set; }
+        public Dictionary<int, PowerStateEnum> HostServersPowerStates { get; set; }
 
-        public async void OnGet()
+        public void OnGet()
         {
+            UPSLogItems = new List<UPSLogItem>();
             Settings = _dbService.GetSettingsWithoutInclude();
-
-            Test = _serverService.GetHostServeriLOStatus(_dbService.GetHostServer(1)).Result;
-            //_serverService.StartHost(_dbService.GetHostServer(1));
+            List<Model.UPS> upss = _dbService.GetUPSs();
+            foreach (Model.UPS ups in upss)
+            {
+                var logItem = _upsService.GetUPSLogItem(ups);
+                logItem.UPS = ups;
+                UPSLogItems.Add(logItem);
+            }
+            HostServers = _dbService.GetHostServers();
+            HostServersPowerStates = new Dictionary<int, PowerStateEnum>();
+            foreach (HostServer host in HostServers)
+            {
+                HostServersPowerStates.Add(host.Id, _serverService.GetHostServeriLOStatus(host).Result);
+            }
         }
     }
 }

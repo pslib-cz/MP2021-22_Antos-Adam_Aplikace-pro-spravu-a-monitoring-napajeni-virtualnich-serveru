@@ -1,35 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿#nullable disable
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
-using MMNVS.Data;
 using MMNVS.Model;
+using MMNVS.Services;
 
 namespace MMNVS.Pages.VirtualServers
 {
     public class DeleteModel : PageModel
     {
-        private readonly MMNVS.Data.ApplicationDbContext _context;
+        private readonly IDbService _dbService;
 
-        public DeleteModel(MMNVS.Data.ApplicationDbContext context)
+        public DeleteModel(IDbService dbService)
         {
-            _context = context;
+            _dbService = dbService;
         }
 
         [BindProperty]
         public VirtualServer VirtualServer { get; set; }
 
-        public async Task<IActionResult> OnGetAsync(string id)
+        public ActionResult OnGet(string id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            VirtualServer = await _context.VirtualServers.FirstOrDefaultAsync(m => m.VMId == id);
+            VirtualServer = _dbService.GetVirtualServer(id);
 
             if (VirtualServer == null)
             {
@@ -38,19 +34,18 @@ namespace MMNVS.Pages.VirtualServers
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync(string id)
+        public ActionResult OnPost(string id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            VirtualServer = await _context.VirtualServers.FindAsync(id);
+            VirtualServer = _dbService.GetVirtualServer(id);
 
             if (VirtualServer != null)
             {
-                _context.VirtualServers.Remove(VirtualServer);
-                await _context.SaveChangesAsync();
+                _dbService.RemoveVirtualServer(VirtualServer);
             }
 
             return RedirectToPage("./Index");

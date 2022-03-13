@@ -1,4 +1,5 @@
-﻿using MailKit.Net.Smtp;
+﻿#nullable disable
+using MailKit.Net.Smtp;
 using MimeKit;
 using MMNVS.Model;
 
@@ -31,10 +32,7 @@ namespace MMNVS.Services
 			using (var client = new SmtpClient())
 			{
 				client.Connect(settings.SmtpServer, settings.SmtpPort ?? 25, settings.SmtpIsSecure);
-
-				// Note: only needed if the SMTP server requires authentication
 				client.Authenticate(settings.SmtpUser, settings.SmtpPassword);
-
 				client.Send(message);
 				client.Disconnect(true);
 			}

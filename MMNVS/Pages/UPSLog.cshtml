@@ -68,7 +68,7 @@
             @if(i == Model.PageNumber)
             {
                 <li class="page-item active" aria-current="page">
-                    <a class="page-link" asp-page="Log" asp-route-pageNumber="@i">@i</a>
+                    <a class="page-link" asp-page="UPSLog" asp-route-pageNumber="@i">@i</a>
                 </li>
             }
             else
@@ -77,3 +77,19 @@
             }
     }
 </ul>
+    <form class="input-group mb-3 d-flex justify-content-center" method="post">
+        <div style="width: 78px; margin-right: 5px;">
+        <select class="form-select" asp-for="@Model.ItemsPerPage">
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="30">30</option>
+            <option value="40">40</option>
+            <option value="50">50</option>
+            <option value="75">75</option>
+            <option value="100">100</option>
+        </select>
+        </div>
+        <div class="input-group-append">
+            <button type="submit" class="btn btn-outline-dark">Změnit počet itemů na stránku</button>
+        </div>
+    </form>

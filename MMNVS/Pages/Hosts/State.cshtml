@@ -1,0 +1,113 @@
+﻿@page
+@model StateModel
+@{
+ViewData["Title"] = "Stav hosta";
+}
+
+<div>
+    <div class="h-100 p-5 text-white bg-dark rounded-3">
+    <h2>Fyzický server @Model.HostServer.Name</h2>
+    <p>Výrobce: @Model.HostServer.Producer</p>
+    </div>
+</div>
+<div class="container px-0">
+    <div class="row row-cols-3 gx-3 pt-2">
+         <div class="col">
+             <div class="card border-dark">
+            @if (@Model.iLOState == MMNVS.Model.PowerStateEnum.PoweredOn)
+            {
+                <div class="card-header bg-success text-white">Stav iLO serveru</div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">Server je spuštěn</li>
+                    <li class="list-group-item">Adresa iLO @Model.HostServer.iLoIPAddress</li>
+                </ul>
+            }
+            else if(@Model.iLOState == MMNVS.Model.PowerStateEnum.PoweredOff)
+            {
+                <div class="card-header bg-warning text-white">Stav iLO serveru</div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">Server je vypnutý</li>
+                    <li class="list-group-item">Adresa iLO @Model.HostServer.iLoIPAddress</li>
+                </ul>
+            }
+            else if(@Model.iLOState == MMNVS.Model.PowerStateEnum.Unknown)
+            {
+                <div class="card-header bg-danger text-white">Stav iLO serveru</div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">K iLO tohoto serveru se nelze připojit!</li>
+                    <li class="list-group-item">Adresa iLO @Model.HostServer.iLoIPAddress</li>
+                </ul>
+            }
+            </div>
+        </div>
+        <div>
+             <div class="card border-dark">
+            @if (@Model.vSphereState == MMNVS.Model.PowerStateEnum.PoweredOn)
+            {
+                <div class="card-header bg-success text-white">Stav vSphere</div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">Server je spuštěn</li>
+                    <li class="list-group-item">Adresa serveru @Model.HostServer.ESXiIPAddress</li>
+                </ul>
+            }
+            else if(@Model.vSphereState == MMNVS.Model.PowerStateEnum.PoweredOff)
+            {
+                <div class="card-header bg-warning text-white">Stav vSphere</div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">Server je spuštěn</li>
+                    <li class="list-group-item">Adresa serveru @Model.HostServer.ESXiIPAddress</li>
+                </ul>
+            }
+            else if(@Model.vSphereState == MMNVS.Model.PowerStateEnum.Unknown)
+            {
+                <div class="card-header bg-danger text-white">Stav vSphere</div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">K iLO tohoto serveru se nelze připojit!</li>
+                    <li class="list-group-item">Adresa serveru @Model.HostServer.ESXiIPAddress</li>
+                </ul>
+            }
+            </div>
+        </div>
+
+        @foreach (var storageServer in @Model.StorageServers)
+        {
+         <div class="col">
+             <div class="card border-dark">
+            @if (@Model.StorageServersState[storageServer.Id] == MMNVS.Model.PowerStateEnum.PoweredOn)
+            {
+                <div class="card-header bg-success text-white">Stav storage serveru @storageServer.Name</div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">Storage server je spuštěn</li>
+                    <li class="list-group-item">Seznam datastorů:</li>
+                            @foreach (var datastore in storageServer.Datastores)
+                            {
+                                if (@Model.DatastoresState[datastore.Id])
+                                {
+                                    <li class="list-group-item bg-success text-white">@datastore.Name je připojen</li>
+                                }
+                                else
+                                {
+                                    <li class="list-group-item bg-danger text-white">@datastore.Name není připojen</li>
+                                }
+                            }
+                </ul>
+            }
+            else if(@Model.StorageServersState[storageServer.Id] == MMNVS.Model.PowerStateEnum.PoweredOff)
+            {
+                <div class="card-header bg-warning text-white">Stav storage serveru @storageServer.Name</div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">Storage server je vypnutý</li>
+                </ul>
+            }
+            else if(@Model.StorageServersState[storageServer.Id] == MMNVS.Model.PowerStateEnum.Unknown)
+            {
+                <div class="card-header bg-danger text-white">Stav storage serveru @storageServer.Name</div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">K tomuto virtuálnímu storage serveru se nelze připojit!</li>
+                </ul>
+            }
+            </div>
+        </div>
+        }
+    </div>
+</div>

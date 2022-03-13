@@ -1,36 +1,31 @@
 ﻿#nullable disable
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
-using MMNVS.Data;
 using MMNVS.Model;
+using MMNVS.Services;
 
 namespace MMNVS.Pages.Hosts
 {
     public class DeleteModel : PageModel
     {
-        private readonly MMNVS.Data.ApplicationDbContext _context;
+        private readonly IDbService _dbService;
 
-        public DeleteModel(MMNVS.Data.ApplicationDbContext context)
+        public DeleteModel(IDbService dbService)
         {
-            _context = context;
+            _dbService = dbService;
         }
 
         [BindProperty]
         public HostServer HostServer { get; set; }
 
-        public async Task<IActionResult> OnGetAsync(int? id)
+        public ActionResult OnGet(int? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            HostServer = await _context.HostServers.FirstOrDefaultAsync(m => m.Id == id);
+            HostServer = _dbService.GetHostServer(id);
 
             if (HostServer == null)
             {
@@ -39,28 +34,14 @@ namespace MMNVS.Pages.Hosts
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync(int? id)
+        public ActionResult OnPost(int? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            HostServer = await _context.HostServers.Include(h => h.VirtualStorageServers).ThenInclude(g => g.Datastores).FirstOrDefaultAsync(s => s.Id == id);
-
-            if (HostServer != null)
-            {
-                foreach (VirtualStorageServer storageServer in HostServer.VirtualStorageServers)
-                {
-                    foreach (Datastore datastore in storageServer.Datastores)
-                    {
-                        _context.Datastores.Remove(datastore);
-                    }
-                    _context.VirtualStorageServers.Remove(storageServer);
-                }
-                _context.HostServers.Remove(HostServer);
-                await _context.SaveChangesAsync();
-            }
+            _dbService.RemoveHostServer(id);
 
             return RedirectToPage("./Index");
         }

@@ -1,4 +1,5 @@
-﻿using Lextm.SharpSnmpLib.Security;
+﻿#nullable disable
+using Lextm.SharpSnmpLib.Security;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -13,15 +14,12 @@ namespace MMNVS.Services
 {
     public class VMService : IVMService
     {
-        public ApplicationDbContext _context;
         private readonly IDbService _dbService;
 
-        public VMService(ApplicationDbContext context, IDbService dbService)
+        public VMService(IDbService dbService)
         {
-            _context = context;
             _dbService = dbService;
         }
-
 
         private string EncodeTo64(string toEncode)
         {
@@ -51,7 +49,7 @@ namespace MMNVS.Services
 
         public void GetVirtualServersFromvCenter()
         {
-            IEnumerable<VirtualServer> virtualServers = _context.VirtualServers;
+            IEnumerable<VirtualServer> virtualServers = _dbService.GetVirtualServers();
             string apiKey = GetvCenterApiKey().Result;
             string apiUrl = _dbService.GetSettings().vCenterApiUrl + "/vcenter/vm";
             using (var httpClient = new HttpClient())
@@ -60,10 +58,9 @@ namespace MMNVS.Services
                 request.Headers.Add("vmware-api-session-id", apiKey);
                 using (var response = (httpClient.SendAsync(request)))
                 {
-                    string jsonResponse = response.Result.Content.ReadAsStringAsync().Result;//.Content.ReadAsStringAsync();
+                    string jsonResponse = response.Result.Content.ReadAsStringAsync().Result;
                     JObject data = JObject.Parse(jsonResponse);
                     IList<JToken> results = data["value"].Children().ToList();
-                    int i = 1;
                     foreach (JToken result in results)
                     {
                         VirtualServer virtualServer = result.ToObject<VirtualServer>();
@@ -74,26 +71,52 @@ namespace MMNVS.Services
                             VirtualServer virtualServerDB = virtualServers.FirstOrDefault(v => v.VMId == virtualServer.VMId);
                             if (virtualServerDB == null)
                             {
-                                if (virtualServer.Name == "vcenter") virtualServer.IsvCenter = true;
-                                else
-                                {
-                                    virtualServer.Order = i;
-                                    i++;
-                                }
-                                _context.VirtualServers.Add(virtualServer);
+                                if (virtualServer.Name == "vcenter") _dbService.AddVirtualServer(virtualServer, true);
+                                else _dbService.AddVirtualServer(virtualServer);
                             }
                             else if (virtualServerDB.VMId == virtualServerDB.VMId && virtualServerDB.Name != virtualServer.Name)
                             {
                                 virtualServerDB.Name = virtualServer.Name;
-                                _context.Attach(virtualServerDB).State = EntityState.Modified;
+                                _dbService.EditItem(virtualServerDB);
                             }
                         }
                     }
                 }
             }
-            _context.SaveChanges();
         }
 
+        public Dictionary<string, PowerStateEnum> GetVirtualServersPower()
+        {
+            try
+            {
+                Dictionary<string, PowerStateEnum> powerStates = new Dictionary<string, PowerStateEnum>();
+                string apiKey = GetvCenterApiKey().Result;
+                string apiUrl = _dbService.GetSettings().vCenterApiUrl + "/vcenter/vm";
+                using (var httpClient = new HttpClient())
+                {
+                    HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, apiUrl);
+                    request.Headers.Add("vmware-api-session-id", apiKey);
+                    using (var response = (httpClient.SendAsync(request)))
+                    {
+                        string jsonResponse = response.Result.Content.ReadAsStringAsync().Result;
+                        JObject data = JObject.Parse(jsonResponse);
+                        IList<JToken> results = data["value"].Children().ToList();
+                        foreach (JToken result in results)
+                        {
+                            string powerState = result.Value<string>("power_state");
+                            string vmId = result.Value<string>("vm");
+                            if (powerState == "POWERED_ON") powerStates.Add(vmId, PowerStateEnum.PoweredOn);
+                            else powerStates.Add(vmId, PowerStateEnum.Unknown);
+                        }
+                    }
+                }
+                return powerStates;
+            }
+            catch
+            {
+                return new Dictionary<string, PowerStateEnum>();
+            }
+        }
         public List<JToken> GetVirtualServerFromvCenter(string vmId)
         {
             string apiKey = GetvCenterApiKey().Result;
@@ -115,7 +138,6 @@ namespace MMNVS.Services
 
         public async Task<HttpStatusCode> StartVirtualServer(string vmId)
         {
-            VirtualServer virtualServer = _context.VirtualServers.Include(i => i.Log).First(v => v.VMId == vmId);
             string apiKey = GetvCenterApiKey().Result;
             string apiUrl = _dbService.GetSettings().vCenterApiUrl + "/vcenter/vm/" + vmId + "/power/start";
 
@@ -124,8 +146,6 @@ namespace MMNVS.Services
                 HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, apiUrl);
                 request.Headers.Add("vmware-api-session-id", apiKey);
                 var response = await httpClient.SendAsync(request);
-                //virtualServer.Log.Add(new LogItem() { VirtualServerVMId = vmId, DateTime = DateTime.Now, OperationType = OperationTypeEnum.VMStart });
-                //_context.SaveChanges();
                 return response.StatusCode;
             }
         }
@@ -148,7 +168,6 @@ namespace MMNVS.Services
         }
         public async Task<HttpStatusCode> ShutdownVirtualServer67(string vmId) //vypínání ve verzi 6.7 a novější (pomocí REST API)
         {
-            VirtualServer virtualServer = _context.VirtualServers.Include(i => i.Log).First(v => v.VMId == vmId);
             string apiKey = GetvCenterApiKey().Result;
             string apiUrl = _dbService.GetSettings().vCenterApiUrl + "/vcenter/vm/" + vmId + "/guest/power?action=shutdown";
 
@@ -163,14 +182,14 @@ namespace MMNVS.Services
 
         public void ShutdownVirtualServer65(string vmId) //Vypínání ve verzi 6.6 a starší, v REST Api není endpoint pro shutdown virtuálního serveru
         {
-            VirtualServer virtualServer = _context.VirtualServers.FirstOrDefault(v => v.VMId == vmId);
+            VirtualServer virtualServer = _dbService.GetVirtualServer(vmId);
             AppSettings settings = _dbService.GetSettingsWithoutInclude();
             Runspace runspace = RunspaceFactory.CreateRunspace();
             runspace.Open();
 
             Pipeline pipeline = runspace.CreatePipeline();
             pipeline.Commands.AddScript("Set-ExecutionPolicy Unrestricted");
-            pipeline.Commands.AddScript("Import-Module VMware.VimAutomation.Core"/*"Get-Module -Name VMware* -ListAvailable | Import-Module"*/);
+            pipeline.Commands.AddScript("Import-Module VMware.VimAutomation.Core");
             pipeline.Commands.AddScript("Connect-VIServer -Server " + settings.vCenterIP + " -Protocol https -User " + settings.vCenterUsername + " -Password " + settings.vCenterPassword + " -ErrorAction Stop");
             pipeline.Commands.AddScript("Get-VM -Name " + virtualServer.Name + " | Shutdown-VMGuest -Confirm:$false");
             pipeline.Invoke();
@@ -228,5 +247,6 @@ namespace MMNVS.Services
         void ShutdownVirtualServer(string vmId);
         PowerStateEnum GetPowerVirtualServer(string vmId);
         PowerStateEnum GetvCenterState();
+        Dictionary<string, PowerStateEnum> GetVirtualServersPower();
     }
 }

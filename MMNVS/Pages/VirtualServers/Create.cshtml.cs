@@ -1,25 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿#nullable disable
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using MMNVS.Data;
 using MMNVS.Model;
+using MMNVS.Services;
 
 namespace MMNVS.Pages.VirtualServers
 {
     public class CreateModel : PageModel
     {
-        private readonly MMNVS.Data.ApplicationDbContext _context;
+        private readonly IDbService _dbService;
 
-        public CreateModel(MMNVS.Data.ApplicationDbContext context)
+        public CreateModel(IDbService dbService)
         {
-            _context = context;
+            _dbService = dbService;
         }
 
-        public IActionResult OnGet()
+        public ActionResult OnGet()
         {
             return Page();
         }
@@ -27,16 +23,13 @@ namespace MMNVS.Pages.VirtualServers
         [BindProperty]
         public VirtualServer VirtualServer { get; set; }
 
-        // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
-        public async Task<IActionResult> OnPostAsync()
+        public ActionResult OnPost()
         {
             if (!ModelState.IsValid)
             {
                 return Page();
             }
-            VirtualServer.Order = _context.VirtualServers.Count() + 1;
-            _context.VirtualServers.Add(VirtualServer);
-            await _context.SaveChangesAsync();
+            _dbService.AddVirtualServer(VirtualServer);
 
             return RedirectToPage("./Index");
         }

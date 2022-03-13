@@ -27,7 +27,7 @@
                 @Html.DisplayNameFor(model => model.VirtualServer[0].StartServerOnStart)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.VirtualServer[0].Notes)
+                Stav
             </th>
             <th></th>
         </tr>
@@ -60,8 +60,22 @@
                 @Html.DisplayFor(modelItem => item.StartServerOnStart)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Notes)
-            </td>
+                    @if(@Model.PowerStates.ContainsKey(item.VMId))
+                    {
+                        @if(@Model.PowerStates[item.VMId] == MMNVS.Model.PowerStateEnum.PoweredOn)
+                        {
+                            <div class="bg-success rounded text-white p-1">Spuštěno</div>
+                        }
+                        else
+                        {
+                            <div class="bg-warning rounded p-1">Vypnuto</div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="bg-danger rounded text-white p-1">Nenalezeno</div>
+                    }
+                </td>
             <td>
                 <a asp-page="./Edit" asp-route-id="@item.VMId">Upravit</a> |
                 <a asp-page="./Details" asp-route-id="@item.VMId">Stav</a> |

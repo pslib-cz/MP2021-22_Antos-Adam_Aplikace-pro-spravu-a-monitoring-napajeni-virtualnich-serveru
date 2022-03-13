@@ -1,35 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+#nullable disable
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
-using MMNVS.Data;
-using MMNVS.Model;
+using MMNVS.Services;
 
 namespace MMNVS.Pages.UPS
 {
     public class DeleteModel : PageModel
     {
-        private readonly MMNVS.Data.ApplicationDbContext _context;
+        private readonly IDbService _dbService;
 
-        public DeleteModel(MMNVS.Data.ApplicationDbContext context)
+        public DeleteModel(IDbService dbService)
         {
-            _context = context;
+            _dbService = dbService;
         }
 
         [BindProperty]
         public Model.UPS UPS { get; set; }
 
-        public async Task<IActionResult> OnGetAsync(int? id)
+        public ActionResult OnGet(int? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            UPS = await _context.UPS.FirstOrDefaultAsync(m => m.Id == id);
+            UPS = _dbService.GetUPS(id);
 
             if (UPS == null)
             {
@@ -38,23 +36,18 @@ namespace MMNVS.Pages.UPS
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync(int? id)
+        public ActionResult OnPost(int? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            UPS = await _context.UPS.FindAsync(id);
+            UPS = _dbService.GetUPS(id);
 
             if (UPS != null)
             {
-                _context.UPS.Remove(UPS);
-                foreach (UPSLogItem item in _context.UPSLog.Where(u => u.UPSId == UPS.Id))
-                {
-                    _context.UPSLog.Remove(item);
-                }
-                await _context.SaveChangesAsync();
+                _dbService.RemoveItem(UPS);
             }
 
             return RedirectToPage("./Index");

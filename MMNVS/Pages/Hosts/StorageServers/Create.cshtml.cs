@@ -1,12 +1,6 @@
 ﻿#nullable disable
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using MMNVS.Data;
 using MMNVS.Model;
 using MMNVS.Services;
 
@@ -14,8 +8,15 @@ namespace MMNVS.Pages.Hosts.StorageServers
 {
     public class CreateModel : PageModel
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IDbService _dbService;
         private readonly IServerService _serverService;
+
+        public CreateModel(IDbService dbService, IServerService serverService)
+        {
+            _dbService = dbService;
+            _serverService = serverService;
+        }
+
         public HostServer HostServer { get; set; }
 
         [TempData]
@@ -23,29 +24,19 @@ namespace MMNVS.Pages.Hosts.StorageServers
         [TempData]
         public string ErrorMessage { get; set; }
 
-        public CreateModel(ApplicationDbContext context, IServerService serverService)
+        [BindProperty]
+        public VirtualStorageServer VirtualStorageServer { get; set; }
+        public ActionResult OnGet(int hostServerId)
         {
-            _context = context;
-            _serverService = serverService;
-        }
-
-        public IActionResult OnGet(int hostServerId)
-        {
-        //ViewData["HostId"] = new SelectList(_context.HostServers, "Id", "Id");
-            HostServer = _context.HostServers.FirstOrDefault(s => s.Id == hostServerId);
+            HostServer = _dbService.GetHostServer(hostServerId);
             return Page();
         }
 
-        [BindProperty]
-        public VirtualStorageServer VirtualStorageServer { get; set; }
-
-        // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
-        public IActionResult OnPost(int hostServerId)
+        public ActionResult OnPost(int hostServerId)
         {
-            HostServer = _context.HostServers.FirstOrDefault(s => s.Id == hostServerId);
+            HostServer = _dbService.GetHostServer(hostServerId);
             VirtualStorageServer.HostId = HostServer.Id;
-            _context.VirtualStorageServers.Add(VirtualStorageServer);
-            _context.SaveChanges();
+            _dbService.AddItem(VirtualStorageServer);
 
             if (_serverService.GetStorageServerStatus(VirtualStorageServer) == PowerStateEnum.PoweredOn)
             {

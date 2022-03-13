@@ -1,32 +1,26 @@
 ﻿#nullable disable
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
-using MMNVS.Data;
 using MMNVS.Model;
+using MMNVS.Services;
 
 namespace MMNVS.Pages.Hosts.StorageServers.Datastores
 {
     public class IndexModel : PageModel
     {
-        private readonly MMNVS.Data.ApplicationDbContext _context;
+        private readonly IDbService _dbService;
 
-        public IndexModel(MMNVS.Data.ApplicationDbContext context)
+        public IndexModel(IDbService dbService)
         {
-            _context = context;
+            _dbService = dbService;
         }
 
         public IList<Datastore> Datastore { get;set; }
         public VirtualStorageServer StorageServer { get;set; }
 
-        public async Task OnGetAsync(int storageServerId)
+        public void OnGet(int storageServerId)
         {
-            StorageServer = await _context.VirtualStorageServers.FirstOrDefaultAsync(s => s.Id == storageServerId);
-            Datastore = await _context.Datastores.Where(d => d.VirtualStorageServerId == storageServerId).ToListAsync();
+            StorageServer = _dbService.GetStorageServer(storageServerId);
+            Datastore = _dbService.GetDatastores(storageServerId);
         }
     }
 }

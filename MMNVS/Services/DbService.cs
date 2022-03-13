@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿#nullable disable
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MMNVS.Data;
@@ -22,9 +23,7 @@ namespace MMNVS.Services
 
             if (settings == null)
             {
-                settings = new AppSettings() { DelayTime = 10, DelayTimeDatastores = 10, DelayTimeHosts = 20, DelayTimeVMStart = 25, MinBatteryTimeForShutdown = 1200, MinBatteryTimeForStart = 900};
-                _context.Settings.Add(settings);
-                _context.SaveChanges();
+                settings = CreateSettings();
             }
             return settings;
         }
@@ -36,10 +35,15 @@ namespace MMNVS.Services
 
             if (settings == null)
             {
-                settings = new AppSettings();
-                _context.Settings.Add(settings);
-                _context.SaveChanges();
+                settings = CreateSettings();
             }
+            return settings;
+        }
+
+        private AppSettings CreateSettings()
+        {
+            AppSettings settings = new AppSettings() { DelayTime = 10, DelayTimeDatastores = 10, DelayTimeHosts = 20, DelayTimeVMStart = 20, MinBatteryTimeForShutdown = 1200, MinBatteryTimeForStart = 900, BatteryTimeForShutdownHosts = 250 };
+            AddItem(settings);
             return settings;
         }
 
@@ -56,7 +60,7 @@ namespace MMNVS.Services
 
         public List<VirtualServer> GetVirtualServersShutdown()
         {
-            return _context.VirtualServers.OrderBy(s => s.Order).Where(v => v.IsvCenter == false).ToList();
+            return _context.VirtualServers.OrderByDescending(s => s.Order).Where(v => v.IsvCenter == false).ToList();
         }
         public List<VirtualServer> GetVirtualServersStart()
         {
@@ -71,8 +75,9 @@ namespace MMNVS.Services
             return _context.HostServers.ToList();
         }
 
-        public List<VirtualStorageServer> GetStorageServers(int hostId)
+        public List<VirtualStorageServer> GetStorageServers(int hostId, bool includeDatastores = false)
         {
+            if (includeDatastores == true) return _context.VirtualStorageServers.Include(d => d.Datastores).Where(s => s.HostId == hostId).ToList();
             return _context.VirtualStorageServers.Where(s => s.HostId == hostId).ToList();
         }
 
@@ -135,9 +140,16 @@ namespace MMNVS.Services
             return _context.Users.FirstOrDefault(u => u.Id == id);
         }
 
-        public List<Datastore> GetDatastores()
+        public List<Datastore> GetDatastores(int? storageServerId = null)
         {
-            return _context.Datastores.ToList();
+            if (storageServerId == null)
+            {
+                return _context.Datastores.ToList();
+            }
+            else
+            {
+                return _context.Datastores.Where(d => d.VirtualStorageServerId == storageServerId).ToList();
+            }
         }
 
         public void RemoveItem(object item)
@@ -196,6 +208,11 @@ namespace MMNVS.Services
             _context.Add(logItem);
             _context.SaveChanges();
         }
+        public void LogUPS(UPSLogItem upsLogItem)
+        {
+            _context.Add(upsLogItem);
+            _context.SaveChanges();
+        }
 
         public int GetLogPagesCount(int count)
         {
@@ -206,6 +223,80 @@ namespace MMNVS.Services
         {
             int itemsCount = _context.UPSLog.Count();
             return (itemsCount / count) + 1;
+        }
+
+        public void SetvCenter(VirtualServer newVCenter)
+        {
+            VirtualServer oldVCenter = GetvCenter();
+            oldVCenter.Order = newVCenter.Order;
+            newVCenter.Order = null;
+            oldVCenter.IsvCenter = false;
+            newVCenter.IsvCenter = true;
+            EditItem(oldVCenter);
+            EditItem(newVCenter);
+        }
+
+        public UPS GetUPS(int? id)
+        {
+            return _context.UPS.FirstOrDefault(u => u.Id == id);
+        }
+
+        public void AddVirtualServer(VirtualServer virtualServer, bool isvCenter = false)
+        {
+            if (isvCenter == false)
+            {
+                int count = _context.VirtualServers.Count();
+                virtualServer.Order = count + 1;
+            }
+            else if (isvCenter == true) virtualServer.IsvCenter = true;
+            AddItem(virtualServer);
+        }
+
+        public void RemoveVirtualServer(VirtualServer virtualServer)
+        {
+            List<VirtualServer> virtualServers = _context.VirtualServers.Where(v => v.Order >= virtualServer.Order).ToList();
+            foreach (VirtualServer vm in virtualServers)
+            {
+                vm.Order--;
+            }
+            _context.SaveChanges();
+            RemoveItem(virtualServer);
+        }
+
+        public void RemoveHostServer(int? id)
+        {
+            HostServer host = _context.HostServers.Include(h => h.VirtualStorageServers).ThenInclude(g => g.Datastores).FirstOrDefault(s => s.Id == id);
+
+            if (host != null)
+            {
+                foreach (VirtualStorageServer storageServer in host.VirtualStorageServers)
+                {
+                    foreach (Datastore datastore in storageServer.Datastores)
+                    {
+                        RemoveItem(datastore);
+                    }
+                    RemoveItem(storageServer);
+                }
+                RemoveItem(host);
+            }
+        }
+
+        public void RemoveStorageServer(int? id)
+        {
+            VirtualStorageServer storageServer = _context.VirtualStorageServers.Include(g => g.Datastores).FirstOrDefault(s => s.Id == id);
+            if (storageServer != null)
+            {
+                foreach (Datastore datastore in storageServer.Datastores)
+                {
+                    RemoveItem(datastore);
+                }
+            RemoveItem(storageServer);
+            }
+        }
+
+        public Datastore GetDatastore(int? id)
+        {
+            return _context.Datastores.FirstOrDefault(d => d.Id == id);
         }
     }
 
@@ -221,7 +312,7 @@ namespace MMNVS.Services
         VirtualServer GetVirtualServerByOrder(int? order);
         List<UPS> GetUPSs();
         List<HostServer> GetHostServers();
-        List<VirtualStorageServer> GetStorageServers(int hostId);
+        List<VirtualStorageServer> GetStorageServers(int hostId, bool includeDatastores = false);
         List<UPSLogItem> GetUPSLog(int count = 0, int start = 1);
         List<LogItem> GetLog(int count = 0, int start = 1);
         void AddItem(Object item);
@@ -233,13 +324,21 @@ namespace MMNVS.Services
         void AddUser(string username, string password, string notes = "");
         void RemoveUser(string id);
         MyUser GetUser(string id);
-        List<Datastore> GetDatastores();
+        List<Datastore> GetDatastores(int? storageServerId = null);
         VirtualStorageServer GetStorageServer(int? id);
         HostServer GetHostServer(int? id);
         bool IsVirtualStorageServer(string name);
         VirtualServer GetvCenter();
         void Log(LogItem logItem);
+        void LogUPS(UPSLogItem upsLogItem);
         int GetLogPagesCount(int count = 1);
         int GetUPSLogPagesCount(int count = 1);
+        void SetvCenter(VirtualServer newVCenter);
+        UPS GetUPS(int? id);
+        void AddVirtualServer(VirtualServer virtualServer, bool isvCenter = false);
+        void RemoveVirtualServer(VirtualServer virtualServer);
+        void RemoveHostServer(int? id);
+        void RemoveStorageServer(int? id);
+        Datastore GetDatastore(int? id);
     }
 }

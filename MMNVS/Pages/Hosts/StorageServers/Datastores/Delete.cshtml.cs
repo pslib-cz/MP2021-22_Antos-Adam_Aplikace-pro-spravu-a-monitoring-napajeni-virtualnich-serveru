@@ -1,30 +1,25 @@
 ﻿#nullable disable
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
-using MMNVS.Data;
 using MMNVS.Model;
+using MMNVS.Services;
 
 namespace MMNVS.Pages.Hosts.StorageServers.Datastores
 {
     public class DeleteModel : PageModel
     {
-        private readonly MMNVS.Data.ApplicationDbContext _context;
+        private readonly IDbService _dbService;
         public int StorageServerId { get; set; }
 
-        public DeleteModel(MMNVS.Data.ApplicationDbContext context)
+        public DeleteModel(IDbService dbService)
         {
-            _context = context;
+            _dbService = dbService;
         }
 
         [BindProperty]
         public Datastore Datastore { get; set; }
 
-        public async Task<IActionResult> OnGetAsync(int? id, int storageServerId)
+        public ActionResult OnGet(int? id, int storageServerId)
         {
             if (id == null)
             {
@@ -32,7 +27,7 @@ namespace MMNVS.Pages.Hosts.StorageServers.Datastores
             }
 
             StorageServerId = storageServerId;
-            Datastore = await _context.Datastores.FirstOrDefaultAsync(m => m.Id == id);
+            Datastore = _dbService.GetDatastore(id);
 
             if (Datastore == null)
             {
@@ -41,19 +36,18 @@ namespace MMNVS.Pages.Hosts.StorageServers.Datastores
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync(int? id, int storageServerId)
+        public ActionResult OnPost(int? id, int storageServerId)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            Datastore = await _context.Datastores.FindAsync(id);
+            Datastore = _dbService.GetDatastore(id);
 
             if (Datastore != null)
             {
-                _context.Datastores.Remove(Datastore);
-                await _context.SaveChangesAsync();
+                _dbService.RemoveItem(Datastore);
             }
 
             return Redirect("./Index?storageServerId=" + storageServerId);

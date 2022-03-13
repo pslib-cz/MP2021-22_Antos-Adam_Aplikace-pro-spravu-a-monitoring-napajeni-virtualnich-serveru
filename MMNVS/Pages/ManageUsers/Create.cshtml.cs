@@ -1,3 +1,4 @@
+#nullable disable
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using MMNVS.Model;
@@ -9,6 +10,12 @@ namespace MMNVS.Pages.ManageUsers
     public class CreateModel : PageModel
     {
         private readonly IDbService _dbService;
+
+        public CreateModel(IDbService dbService)
+        {
+            _dbService = dbService;
+        }
+
         [Display(Name = "Uživatelské jméno")]
         [BindProperty]
         public string UserName { get; set; }
@@ -22,11 +29,6 @@ namespace MMNVS.Pages.ManageUsers
         public string SuccessMessage { get; set; }
         [TempData]
         public string ErrorMessage { get; set; }
-
-        public CreateModel(IDbService dbService)
-        {
-            _dbService = dbService;
-        }
 
         public void OnGet()
         {

@@ -16,25 +16,19 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.VirtualStorageServer[0].Name)
+                @Html.DisplayNameFor(model => model.VirtualStorageServers[0].Name)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.VirtualStorageServer[0].Order)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.VirtualStorageServer[0].Notes)
+                @Html.DisplayNameFor(model => model.VirtualStorageServers[0].Notes)
             </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model.VirtualStorageServer) {
+@foreach (var item in Model.VirtualStorageServers) {
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Order)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Notes)

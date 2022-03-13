@@ -19,27 +19,12 @@
             <th>
                 @Html.DisplayNameFor(model => model.HostServer[0].Producer)
             </th>
-@*            <th>
-                @Html.DisplayNameFor(model => model.HostServer[0].iLoIPAddress)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.HostServer[0].iLoUser)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.HostServer[0].iLoPassword)
-            </th>*@
             <th>
                 @Html.DisplayNameFor(model => model.HostServer[0].ESXiIPAddress)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.HostServer[0].ESXiUser)
+                @Html.DisplayNameFor(model => model.HostServer[0].iLoIPAddress)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.HostServer[0].ESXiPassword)
-            </th>
-@*            <th>
-                @Html.DisplayNameFor(model => model.HostServer[0].Notes)
-            </th>*@
             <th></th>
         </tr>
     </thead>
@@ -52,30 +37,16 @@
             <td>
                 @Html.DisplayFor(modelItem => item.Producer)
             </td>
-@*            <td>
-                @Html.DisplayFor(modelItem => item.iLoIPAddress)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.iLoUser)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.iLoPassword)
-            </td>*@
             <td>
                 @Html.DisplayFor(modelItem => item.ESXiIPAddress)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.ESXiUser)
+                @Html.DisplayFor(modelItem => item.iLoIPAddress)
             </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ESXiPassword)
-            </td>
-@*            <td>
-                @Html.DisplayFor(modelItem => item.Notes)
-            </td>*@
             <td>
                 <a asp-page="./StorageServers/Index" asp-route-hostServerId="@item.Id">Storage servery</a> |
                 <a asp-page="./Edit" asp-route-id="@item.Id">Upravit</a> |
+                <a asp-page="./State" asp-route-id="@item.Id">Stav</a> |
                 <a asp-page="./Delete" asp-route-id="@item.Id">Odstranit</a>
             </td>
         </tr>

@@ -1,4 +1,5 @@
-﻿using Lextm.SharpSnmpLib;
+﻿#nullable disable
+using Lextm.SharpSnmpLib;
 using Lextm.SharpSnmpLib.Messaging;
 using MMNVS.Data;
 using MMNVS.Model;
@@ -8,12 +9,10 @@ namespace MMNVS.Services
 {
     public class UPSService : IUPSService
     {
-        private readonly ApplicationDbContext _context;
         private readonly IDbService _dbService;
 
-        public UPSService(ApplicationDbContext context, IDbService dbService)
+        public UPSService(IDbService dbService)
         {
-            _context = context;
             _dbService = dbService;
         }
 
@@ -44,12 +43,11 @@ namespace MMNVS.Services
 
         public void LogUPSsData()
         {
-            List<UPS> ups = _context.UPS.ToList();
+            List<UPS> ups = _dbService.GetUPSs();
             foreach (UPS u in ups)
             {
-                _context.UPSLog.Add(GetUPSLogItem(u));
+                _dbService.LogUPS(GetUPSLogItem(u));
             }
-            _context.SaveChanges();
         }
         public bool IsUPSsOnMainSuply()
         {
@@ -86,6 +84,19 @@ namespace MMNVS.Services
             }
             return time / ups.Count();
         }
+
+        public UPS GetUPSProducerModel(UPS UPS)
+        {
+            var dataUps = Messenger.Get(VersionCode.V1,
+            new IPEndPoint(IPAddress.Parse(UPS.IPAddress), 161),
+            new OctetString("public"),
+            new List<Variable> { new Variable(new ObjectIdentifier("1.3.6.1.4.1.232.165.1.2.2.0")), new Variable(new ObjectIdentifier("1.3.6.1.4.1.232.165.1.2.1.0")) },
+            6000);
+            UPS.Model = dataUps[0].Data.ToString();
+            UPS.Producer = dataUps[1].Data.ToString();
+
+            return UPS;
+        }
     }
     public interface IUPSService
     {
@@ -93,5 +104,6 @@ namespace MMNVS.Services
         UPSLogItem GetUPSLogItem(UPS ups);
         bool IsUPSsOnMainSuply();
         int GetRemaingTimeAllUPSs();
+        UPS GetUPSProducerModel(UPS UPS);
     }
 }

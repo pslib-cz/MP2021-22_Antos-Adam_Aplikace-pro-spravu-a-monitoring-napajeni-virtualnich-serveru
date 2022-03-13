@@ -1,14 +1,92 @@
 ﻿@page
 @model IndexModel
 @{
-ViewData["Title"] = "Úvod";
+ViewData["Title"] = "Stav systému";
 }
 
 <div>
-    <div @*style="margin-left: 25%; margin-right: 25%;"*@ class="h-100 p-5 text-white bg-dark rounded-3">
+    <div class="h-100 p-5 text-white bg-dark rounded-3">
     <h2>Monitoring a management napájení virtuálních serverů</h2>
-    <p>@Model.Settings.vCenterApiUrl</p>
+    <h3>Stav systému, UPS a host serverů</h3>
+    @*<p>@Model.Settings.vCenterApiUrl</p>*@
     <p>Aktuální stav systému: @Html.DisplayFor(modelItem => Model.Settings.SystemState)</p>
-    <p>xxx: @Model.Test</p>
+        <div>
+            <a class="btn btn-outline-light" asp-page="/VirtualServers/Index">Zobrazit stav virtuálních serverů</a>
+        </div>
+    </div>
+</div>
+<div class="container px-0">
+    <div class="row row-cols-3 gx-3 pt-3">
+        @foreach (var logItem in @Model.UPSLogItems)
+        {
+         <div class="col">
+             <div class="card border-dark">
+            @if (logItem.State == MMNVS.Model.UPSStateEnum.MainSupply)
+            {
+                <div class="card-header bg-success text-white">@logItem.UPS.Name (@logItem.UPS.IPAddress)</div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">Připojena k el. síti (@logItem.BatteryCapacity%)</li>
+                    <li class="list-group-item">Zbývající čas @logItem.RemainingTime s</li>
+                    <li class="list-group-item">Zátěž @logItem.Load%</li>
+                </ul>
+            }
+            else if(logItem.State == MMNVS.Model.UPSStateEnum.Battery)
+            {
+                <div class="card-header bg-warning text-white">@logItem.UPS.Name (@logItem.UPS.IPAddress)</div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">Běží na baterii (@logItem.BatteryCapacity%)</li>
+                    <li class="list-group-item">Zbývající čas @logItem.RemainingTime s</li>
+                    <li class="list-group-item">Zátěž @logItem.Load%</li>
+                </ul> 
+            }
+            else if(logItem.State == MMNVS.Model.UPSStateEnum.Unknown)
+            {
+                <div class="card-header bg-danger text-white">@logItem.UPS.Name (@logItem.UPS.IPAddress)</div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">Nelze se připojit</li>
+                </ul> 
+            }
+            </div>
+        </div>
+        }
+    </div>
+        <div class="row row-cols-3 gx-3 pt-3">
+        @foreach (var host in @Model.HostServers)
+        {
+         <div class="col">
+             <div class="card border-dark">
+            @if (@Model.HostServersPowerStates[host.Id] == MMNVS.Model.PowerStateEnum.PoweredOn)
+            {
+                <div class="card-header bg-success text-white">Stav iLO serveru @host.Name</div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">Server je spuštěn</li>
+                    <li class="list-group-item">Adresa serveru @host.ESXiIPAddress</li>
+                    <li class="list-group-item">Adresa iLO @host.iLoIPAddress</li>
+                </ul>
+                <a class="card-footer btn btn-dark bg-dark" asp-route-id="@host.Id" asp-page="/Hosts/State">Zobrazit podrobné informace o stavu</a>
+            }
+            else if(@Model.HostServersPowerStates[host.Id] == MMNVS.Model.PowerStateEnum.PoweredOff)
+            {
+                <div class="card-header bg-warning text-white">Stav iLO serveru @host.Name</div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">Server je vypnutý</li>
+                    <li class="list-group-item">Adresa serveru @host.ESXiIPAddress</li>
+                    <li class="list-group-item">Adresa iLO @host.iLoIPAddress</li>
+                </ul>
+                <a class="card-footer btn btn-dark bg-dark" asp-route-id="@host.Id" asp-page="/Hosts/State">Zobrazit podrobné informace o stavu</a>
+            }
+            else if(@Model.HostServersPowerStates[host.Id] == MMNVS.Model.PowerStateEnum.Unknown)
+            {
+                <div class="card-header bg-danger text-white">Stav iLO serveru @host.Name</div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">K iLO tohoto serveru se nelze připojit!</li>
+                    <li class="list-group-item">Adresa serveru @host.ESXiIPAddress</li>
+                    <li class="list-group-item">Adresa iLO @host.iLoIPAddress</li>
+                </ul>
+                <a class="card-footer btn btn-dark bg-dark" asp-route-id="@host.Id" asp-page="/Hosts/State">Zobrazit podrobné informace o stavu</a>
+            }
+            </div>
+        </div>
+        }
     </div>
 </div>

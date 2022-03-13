@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿#nullable disable
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using MMNVS.Data;
 using MMNVS.Model;
 using MMNVS.Services;
 
@@ -27,14 +21,16 @@ namespace MMNVS.Pages.VirtualServers
         public string SuccessMessage { get; set; }
         [TempData]
         public string ErrorMessage { get; set; }
-        public IList<VirtualServer> VirtualServer { get;set; }
+        public IList<VirtualServer> VirtualServer { get; set; }
+        public Dictionary<string, PowerStateEnum> PowerStates { get; set; }
 
-        public async Task OnGetAsync()
+        public void OnGet()
         {
             VirtualServer = _dbService.GetVirtualServers();
+            PowerStates = _vmService.GetVirtualServersPower();
         }
 
-        public IActionResult OnGetGetFromvCenter()
+        public ActionResult OnGetGetFromvCenter()
         {
             try
             {
@@ -45,10 +41,10 @@ namespace MMNVS.Pages.VirtualServers
             {
                 ErrorMessage = "Chyba při načítání ze serveru vCenter.";
             }
-            return RedirectToPage("Index");
+            return RedirectToPage();
         }
 
-        public IActionResult OnGetChangeOrderUp(string vmid)
+        public ActionResult OnGetChangeOrderUp(string vmid)
         {
             VirtualServer vm = _dbService.GetVirtualServer(vmid);
             VirtualServer vmUp = _dbService.GetVirtualServerByOrder(vm.Order - 1);
@@ -61,9 +57,9 @@ namespace MMNVS.Pages.VirtualServers
                 SuccessMessage = "Pořadí úspěšně změněno.";
             }
             else ErrorMessage = "Pořadí nelze zvýšit.";
-            return RedirectToPage("Index");
+            return RedirectToPage();
         }
-        public IActionResult OnGetChangeOrderDown(string vmid)
+        public ActionResult OnGetChangeOrderDown(string vmid)
         {
             VirtualServer vm = _dbService.GetVirtualServer(vmid);
             VirtualServer vmDown = _dbService.GetVirtualServerByOrder(vm.Order + 1);
@@ -76,7 +72,7 @@ namespace MMNVS.Pages.VirtualServers
                 SuccessMessage = "Pořadí úspěšně změněno.";
             }
             else ErrorMessage = "Pořadí nelze snížit.";
-            return RedirectToPage("Index");
+            return RedirectToPage();
         }
     }
 }

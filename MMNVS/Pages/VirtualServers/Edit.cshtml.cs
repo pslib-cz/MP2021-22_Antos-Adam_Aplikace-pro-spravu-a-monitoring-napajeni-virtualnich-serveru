@@ -1,36 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿#nullable disable
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using MMNVS.Data;
 using MMNVS.Model;
+using MMNVS.Services;
 
 namespace MMNVS.Pages.VirtualServers
 {
     public class EditModel : PageModel
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IDbService _dbService;
 
-        public EditModel(ApplicationDbContext context)
+        public EditModel(IDbService dbService)
         {
-            _context = context;
+            _dbService = dbService;
         }
+
+        [TempData]
+        public string SuccessMessage { get; set; }
+        [TempData]
+        public string ErrorMessage { get; set; }
 
         [BindProperty]
         public VirtualServer VirtualServer { get; set; }
 
-        public async Task<IActionResult> OnGetAsync(string id)
+        public ActionResult OnGet(string id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            VirtualServer = await _context.VirtualServers.FirstOrDefaultAsync(m => m.VMId == id);
+            VirtualServer = _dbService.GetVirtualServer(id);
 
             if (VirtualServer == null)
             {
@@ -39,39 +39,36 @@ namespace MMNVS.Pages.VirtualServers
             return Page();
         }
 
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see https://aka.ms/RazorPagesCRUD.
-        public async Task<IActionResult> OnPostAsync()
+        public ActionResult OnPost()
         {
             if (!ModelState.IsValid)
             {
                 return Page();
             }
 
-            _context.Attach(VirtualServer).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!VirtualServerExists(VirtualServer.VMId))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            _dbService.EditItem(VirtualServer);
 
             return RedirectToPage("./Index");
         }
 
-        private bool VirtualServerExists(string id)
+        public ActionResult OnPostSetvCenter()
         {
-            return _context.VirtualServers.Any(e => e.VMId == id);
+            if (!ModelState.IsValid)
+            {
+                return Page();
+            }
+
+            try
+            {
+                _dbService.SetvCenter(VirtualServer);
+                SuccessMessage = "Server " + VirtualServer.Name + " byl nastaven jako server vCenter";
+            }
+            catch
+            {
+                ErrorMessage = "Chyba!";
+            }
+
+            return RedirectToPage("./Index");
         }
     }
 }
