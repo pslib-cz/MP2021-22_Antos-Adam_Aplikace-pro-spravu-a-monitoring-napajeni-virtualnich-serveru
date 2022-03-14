@@ -43,12 +43,7 @@ namespace MMNVS.Pages.Hosts.StorageServers.Datastores
                 return NotFound();
             }
 
-            Datastore = _dbService.GetDatastore(id);
-
-            if (Datastore != null)
-            {
-                _dbService.RemoveItem(Datastore);
-            }
+            _dbService.RemoveDatastore(id);
 
             return Redirect("./Index?storageServerId=" + storageServerId);
         }

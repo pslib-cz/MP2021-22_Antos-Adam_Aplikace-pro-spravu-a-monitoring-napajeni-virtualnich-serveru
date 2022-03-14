@@ -44,11 +44,7 @@ namespace MMNVS.Model
         public int? SmtpPort { get; set; }
         [Display(Name = "Zabezpečený přenos SMTP")]
         public bool SmtpIsSecure { get; set; }
-        [Display(Name = "Primární UPS")]
-        public int? PrimaryUPSId { get; set; }
-        [ForeignKey("PrimaryUPSId")]
-        public UPS? PrimaryUPS { get; set; }
-        [Display(Name = "Název vCenter")]
+        [Display(Name = "Název (IP) vCenter")]
         public string? vCenterIP{ get; set; }
         [Display(Name = "Uživatel vCenter")]
         public string? vCenterUsername { get; set; }

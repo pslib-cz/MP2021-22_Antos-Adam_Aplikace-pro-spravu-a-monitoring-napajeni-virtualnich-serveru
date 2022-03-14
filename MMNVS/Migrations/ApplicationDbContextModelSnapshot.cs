@@ -194,9 +194,6 @@ namespace MMNVS.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("PrimaryUPSId")
-                        .HasColumnType("int");
-
                     b.Property<bool>("SmtpIsSecure")
                         .HasColumnType("bit");
 
@@ -231,8 +228,6 @@ namespace MMNVS.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("PrimaryUPSId");
 
                     b.ToTable("Settings");
                 });
@@ -418,15 +413,15 @@ namespace MMNVS.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "84e2d884-181f-41b5-8137-c47b8a577011",
+                            Id = "3698bea7-d05c-4edb-8cc8-0241b3160724",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "df2beb6e-0d39-4acf-b6aa-43ff3dde1cf4",
+                            ConcurrencyStamp = "806847c7-6d75-4ec0-9bd3-a27227c273f5",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             NormalizedUserName = "ADMINISTRATOR",
-                            PasswordHash = "AQAAAAEAACcQAAAAEJiQ3nP74GFBu9dHClqpiGe+B14Z3k5pJZeuu/LiDmaL28W6FiWoRLuRHPpdyOdoZQ==",
+                            PasswordHash = "AQAAAAEAACcQAAAAENOrrahD5qEbMBy3teBM3nc7bsptYAR/Ii8aqSbid/S2Z97KrXqOfSvmzBvg8aE6Jg==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "88961103-d410-4d53-9c20-9d1f2563bbad",
+                            SecurityStamp = "ec86b9ae-41a7-4596-a975-e668a11970a1",
                             TwoFactorEnabled = false,
                             UserName = "administrator"
                         });
@@ -608,15 +603,6 @@ namespace MMNVS.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("MMNVS.Model.AppSettings", b =>
-                {
-                    b.HasOne("MMNVS.Model.UPS", "PrimaryUPS")
-                        .WithMany("AppSettings")
-                        .HasForeignKey("PrimaryUPSId");
-
-                    b.Navigation("PrimaryUPS");
-                });
-
             modelBuilder.Entity("MMNVS.Model.Datastore", b =>
                 {
                     b.HasOne("MMNVS.Model.VirtualStorageServer", "VirtualStorageServer")
@@ -691,8 +677,6 @@ namespace MMNVS.Migrations
 
             modelBuilder.Entity("MMNVS.Model.UPS", b =>
                 {
-                    b.Navigation("AppSettings");
-
                     b.Navigation("Log");
 
                     b.Navigation("UPSLog");

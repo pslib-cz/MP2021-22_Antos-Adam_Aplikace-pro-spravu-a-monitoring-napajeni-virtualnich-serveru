@@ -41,7 +41,7 @@ namespace MMNVS.Services
 
                 Pipeline pipeline = runspace.CreatePipeline();
                 pipeline.Commands.AddScript("Set-ExecutionPolicy Unrestricted");
-                pipeline.Commands.AddScript("Import-Module VMware.VimAutomation.Core"/*"Get-Module -Name VMware* -ListAvailable | Import-Module"*/);
+                pipeline.Commands.AddScript("Import-Module VMware.VimAutomation.Core");
                 pipeline.Commands.AddScript("Connect-VIServer -Server " + host.ESXiIPAddress + " -Protocol https -User " + host.ESXiUser + " -Password " + host.ESXiPassword + " -ErrorAction Stop");
                 pipeline.Commands.AddScript("Get-Datastore -Name " + datastore.Name + " -ErrorAction Stop");
                 pipeline.Invoke();
@@ -93,8 +93,8 @@ namespace MMNVS.Services
             Pipeline pipeline = runspace.CreatePipeline();
             pipeline.Commands.AddScript("Set-ExecutionPolicy Unrestricted");
             pipeline.Commands.AddScript("Import-Module VMware.VimAutomation.Core");
-            pipeline.Commands.AddScript("Connect-VIServer -Server " + host.ESXiIPAddress + " -Protocol https -User "+ host.ESXiUser +" -Password "+ host.ESXiPassword +" -ErrorAction Stop");
-            pipeline.Commands.AddScript("Get-VM -Name "+ vCenterName + " -Server " + host.ESXiIPAddress + " | Start-VM" + " -ErrorAction Stop");
+            pipeline.Commands.AddScript("Connect-VIServer -Server " + host.ESXiIPAddress + " -Protocol https -User " + host.ESXiUser + " -Password " + host.ESXiPassword + " -ErrorAction Stop");
+            pipeline.Commands.AddScript("Get-VM -Name " + vCenterName + " -Server " + host.ESXiIPAddress + " | Start-VM" + " -ErrorAction Stop");
             pipeline.Invoke();
             runspace.Close();
         }
@@ -164,7 +164,7 @@ namespace MMNVS.Services
         {
             try
             {
-                string vCenterName = _dbService.GetSettingsWithoutInclude().vCenterIP;
+                string vCenterName = _dbService.GetSettings().vCenterIP;
                 HostServer host = _dbService.GetHostServer(storageServer.HostId);
                 Runspace runspace = RunspaceFactory.CreateRunspace();
                 runspace.Open();
@@ -227,7 +227,7 @@ namespace MMNVS.Services
         public async void StartHost(HostServer host)
         {
             string url = "https://" + host.iLoIPAddress + "/redfish/v1/Systems/1/Actions/ComputerSystem.Reset";
-            string authtoken = GetiLOApiKey(host);
+            ApiKeyLogOutURL apiKeyLogOutURL = GetiLOApiKey(host);
 
             var myData = new
             {
@@ -252,17 +252,21 @@ namespace MMNVS.Services
             {
                 HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, url);
                 request.Content = new StringContent(jsonData, System.Text.Encoding.UTF8, "application/json");
-                request.Headers.Add("X-Auth-Token", authtoken);
+                request.Headers.Add("X-Auth-Token", apiKeyLogOutURL.ApiKey);
                 request.Headers.Add("OData-Version", "4.0");
                 var response = await httpClient.SendAsync(request);
             }
+
+            LogOutSession(apiKeyLogOutURL);
         }
 
         public async Task<PowerStateEnum> GetHostServeriLOStatus(HostServer host)
         {
             try
             {
-                string authtoken = GetiLOApiKey(host);
+                ApiKeyLogOutURL apiKeyLogOutURL = GetiLOApiKey(host);
+                string value;
+
                 string url = "https://" + host.iLoIPAddress + "/redfish/v1/Systems/1/";
                 var handler = new HttpClientHandler();
                 handler.ClientCertificateOptions = ClientCertificateOption.Manual;
@@ -276,18 +280,21 @@ namespace MMNVS.Services
                 using (var httpClient = new HttpClient(handler))
                 {
                     HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url);
-                    request.Headers.Add("X-Auth-Token", authtoken);
+                    request.Headers.Add("X-Auth-Token", apiKeyLogOutURL.ApiKey);
                     using (var response = (await httpClient.SendAsync(request)))
                     {
                         string apiResponse = await response.Content.ReadAsStringAsync();
-                        Console.WriteLine(apiResponse);
                         var jsonResponse = JObject.Parse(response.Content.ReadAsStringAsync().Result);
-                        string value = jsonResponse.SelectToken("$.PowerState").Value<string>();
-                        if (value == "On") return PowerStateEnum.PoweredOn;
-                        else if (value == "Off") return PowerStateEnum.PoweredOff;
-                        else return PowerStateEnum.Unknown;
+                        value = jsonResponse.SelectToken
+                            ("$.PowerState").Value<string>();
                     }
                 }
+
+                LogOutSession(apiKeyLogOutURL);
+
+                if (value == "On") return PowerStateEnum.PoweredOn;
+                else if (value == "Off") return PowerStateEnum.PoweredOff;
+                else return PowerStateEnum.Unknown;
             }
             catch
             {
@@ -295,11 +302,13 @@ namespace MMNVS.Services
             }
         }
 
-        public string GetiLOApiKey(HostServer host)
+        private ApiKeyLogOutURL GetiLOApiKey(HostServer host)
         {
             string url = "https://" + host.iLoIPAddress + "/redfish/v1/sessions/";
             string username = host.iLoUser;
             string password = host.iLoPassword;
+
+            ApiKeyLogOutURL apiKeyLogOutURL = new ApiKeyLogOutURL();
 
             var myData = new
             {
@@ -324,13 +333,46 @@ namespace MMNVS.Services
                 httpClient.Timeout = TimeSpan.FromSeconds(3);
                 HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, url);
                 request.Content = new StringContent(jsonData, Encoding.UTF8, "application/json");
-                var response = httpClient.SendAsync(request);
-                IEnumerable<string> cookieHeader;
-                response.Result.Headers.TryGetValues("X-Auth-Token", out cookieHeader);
-                string token = cookieHeader.ToArray()[0];
-                return token;
+                var response = httpClient.Send(request);
+                IEnumerable<string> apiKey;
+                response.Headers.TryGetValues("X-Auth-Token", out apiKey);
+                IEnumerable<string> logOurURL;
+                response.Headers.TryGetValues("Location", out logOurURL);
+                apiKeyLogOutURL.ApiKey = apiKey.ToArray()[0];
+                apiKeyLogOutURL.LogOutURL = logOurURL.ToArray()[0];
+            }
+
+            return apiKeyLogOutURL;
+        }
+
+        private void LogOutSession(ApiKeyLogOutURL apiKeyLogOutURL)
+        {
+            var myData = new
+            {
+            };
+
+            string jsonData = JsonConvert.SerializeObject(myData);
+
+            var handler = new HttpClientHandler();
+            handler.ClientCertificateOptions = ClientCertificateOption.Manual;
+            handler.ServerCertificateCustomValidationCallback =
+                (httpRequestMessage, cert, cetChain, policyErrors) =>
+                {
+                    return true;
+                };
+
+            var client = new HttpClient(handler);
+
+            using (HttpClient httpClient = new HttpClient(handler))
+            {
+                httpClient.Timeout = TimeSpan.FromSeconds(5);
+                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Delete, apiKeyLogOutURL.LogOutURL);
+                request.Content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+                request.Headers.Add("X-Auth-Token", apiKeyLogOutURL.ApiKey);
+                var response = httpClient.Send(request);
             }
         }
+
     }
     public interface IServerService
     {
@@ -348,6 +390,12 @@ namespace MMNVS.Services
         Task<PowerStateEnum> GetHostServeriLOStatus(HostServer host);
         void StartStorageServer(VirtualStorageServer storageServer);
         bool DataStoreCheck(Datastore datastore);
-        string GetiLOApiKey(HostServer host);
     }
+
+    public class ApiKeyLogOutURL
+    {
+        public string ApiKey { get; set; }
+        public string LogOutURL { get; set; }
+    }
+
 }

@@ -33,7 +33,7 @@ namespace MMNVS.Pages.ManageUsers
         public void OnGet()
         {
         }
-        public void OnPost()
+        public ActionResult OnPost()
         {
             try
             {
@@ -44,6 +44,8 @@ namespace MMNVS.Pages.ManageUsers
             {
                 ErrorMessage = "Pøi pøidávání uživatele se vyskytla chyba!";
             }
+
+            return RedirectToPage("./Index");
         }
     }
 }

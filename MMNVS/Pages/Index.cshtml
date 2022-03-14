@@ -19,7 +19,7 @@ ViewData["Title"] = "Stav systému";
     <div class="row row-cols-3 gx-3 pt-3">
         @foreach (var logItem in @Model.UPSLogItems)
         {
-         <div class="col">
+         <div class="col pb-2">
              <div class="card border-dark">
             @if (logItem.State == MMNVS.Model.UPSStateEnum.MainSupply)
             {
@@ -53,7 +53,7 @@ ViewData["Title"] = "Stav systému";
         <div class="row row-cols-3 gx-3 pt-3">
         @foreach (var host in @Model.HostServers)
         {
-         <div class="col">
+         <div class="col pb-2">
              <div class="card border-dark">
             @if (@Model.HostServersPowerStates[host.Id] == MMNVS.Model.PowerStateEnum.PoweredOn)
             {

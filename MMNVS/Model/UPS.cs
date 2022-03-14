@@ -26,6 +26,5 @@ namespace MMNVS.Model
         public string? Notes { get; set; }
         public ICollection<UPSLogItem>? UPSLog { get; set; }
         public ICollection<LogItem>? Log { get; set; }
-        public ICollection<AppSettings>? AppSettings { get; set; }
     }
 }

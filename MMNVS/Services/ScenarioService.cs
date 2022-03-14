@@ -35,14 +35,14 @@ namespace MMNVS.Services
             }
             if (isUPSOnMainSuply == true && systemState == SystemStateEnum.Off) //USP připojena(y) k síti a servery vypnuté
             {
-                if (_upsservice.GetRemaingTimeAllUPSs() >= _dbService.GetSettingsWithoutInclude().MinBatteryTimeForStart) //spouštění pouze při na nabitých bateriích
+                if (_upsservice.GetRemaingTimeAllUPSs() >= _dbService.GetSettings().MinBatteryTimeForStart) //spouštění pouze při na nabitých bateriích
                 {
                     Start();
                 }
             }
             else if (isUPSOnMainSuply == false && systemState == SystemStateEnum.Running) //UPS na bateriích a servery spuštěné
             {
-                if (_upsservice.GetRemaingTimeAllUPSs() <= _dbService.GetSettingsWithoutInclude().MinBatteryTimeForShutdown) //spouštění pouze při na nabitých bateriích
+                if (_upsservice.GetRemaingTimeAllUPSs() <= _dbService.GetSettings().MinBatteryTimeForShutdown) //spouštění pouze při na nabitých bateriích
                 {
                     Shutdown();
                 }
@@ -69,7 +69,7 @@ namespace MMNVS.Services
                         _vmService.ShutdownVirtualServer(virtualServer.VMId);
                         while (_vmService.GetPowerVirtualServer(virtualServer.VMId) == PowerStateEnum.PoweredOn)
                         {
-                            Thread.Sleep(_dbService.GetSettingsWithoutInclude().DelayTime * 1000); //x sekund čeká, poté kontrola znovu
+                            Thread.Sleep(_dbService.GetSettings().DelayTime * 1000); //x sekund čeká, poté kontrola znovu
                         }
                         _dbService.Log(new LogItem { OperationType = OperationTypeEnum.VMShutdownEnd, DateTime = DateTime.Now, VirtualServerVMId = virtualServer.VMId });
                     }
@@ -91,7 +91,7 @@ namespace MMNVS.Services
                 _serverService.FindShutdownvCenter();
                 while (_vmService.GetPowerVirtualServer(vCenter.VMId) == PowerStateEnum.PoweredOn)
                 {
-                    Thread.Sleep(_dbService.GetSettingsWithoutInclude().DelayTime * 1000); //x sekund čeká, poté kontrola znovu
+                    Thread.Sleep(_dbService.GetSettings().DelayTime * 1000); //x sekund čeká, poté kontrola znovu
                 }
                 _dbService.Log(new LogItem { OperationType = OperationTypeEnum.vCenterShutdownEnd, DateTime = DateTime.Now });
             }
@@ -108,7 +108,7 @@ namespace MMNVS.Services
                     _serverService.ShutdownStorageServer(storageServer);
                     while (_serverService.GetStorageServerStatus(storageServer) == PowerStateEnum.PoweredOn)
                     {
-                        Thread.Sleep(_dbService.GetSettingsWithoutInclude().DelayTimeHosts * 1000); //x sekund čeká, poté kontrola znovu
+                        Thread.Sleep(_dbService.GetSettings().DelayTimeHosts * 1000); //x sekund čeká, poté kontrola znovu
                     }
                     _dbService.Log(new LogItem { OperationType = OperationTypeEnum.VSAShutdownEnd, DateTime = DateTime.Now, VirtualStorageServerId = storageServer.Id });
                 }
@@ -121,7 +121,7 @@ namespace MMNVS.Services
             }
 
             //Kontrola kapacity UPS, opožděné vypínání
-            while (_upsservice.GetRemaingTimeAllUPSs() > _dbService.GetSettingsWithoutInclude().BatteryTimeForShutdownHosts)
+            while (_upsservice.GetRemaingTimeAllUPSs() > _dbService.GetSettings().BatteryTimeForShutdownHosts)
             {
                 if (_upsservice.IsUPSsOnMainSuply() == true) //true - připojeno k el. síti, false - baterie
                 {
@@ -129,7 +129,7 @@ namespace MMNVS.Services
                     Start();
                     return;
                 }
-                Thread.Sleep(_dbService.GetSettingsWithoutInclude().DelayTime);
+                Thread.Sleep(_dbService.GetSettings().DelayTime);
             }
 
             //Vypínání host serverů
@@ -141,7 +141,7 @@ namespace MMNVS.Services
                         _serverService.ShutdownHost(host);
                         while (_serverService.GetHostServerStatus(host) == PowerStateEnum.PoweredOn)
                         {
-                            Thread.Sleep(_dbService.GetSettingsWithoutInclude().DelayTimeHosts * 1000); //x sekund čeká, poté kontrola znovu
+                            Thread.Sleep(_dbService.GetSettings().DelayTimeHosts * 1000); //x sekund čeká, poté kontrola znovu
                         }
                         _dbService.Log(new LogItem { OperationType = OperationTypeEnum.VSAShutdownEnd, DateTime = DateTime.Now, HostServerId = host.Id });
                     }
@@ -174,7 +174,7 @@ namespace MMNVS.Services
                         }
                         while (_serverService.GetHostServerStatus(host) != PowerStateEnum.PoweredOn)
                         {
-                            Thread.Sleep(_dbService.GetSettingsWithoutInclude().DelayTimeHosts * 1000); //x sekund čeká, poté kontrola znovu
+                            Thread.Sleep(_dbService.GetSettings().DelayTimeHosts * 1000); //x sekund čeká, poté kontrola znovu
                         }
                         _dbService.Log(new LogItem { OperationType = OperationTypeEnum.HostStartupEnd, DateTime = DateTime.Now, HostServerId = host.Id });
                         _mailService.SendMail("Server " + host.Name + " spuštěn", "Server " + host.Name + " spuštěn");
@@ -188,7 +188,7 @@ namespace MMNVS.Services
                             _serverService.StartStorageServer(storageServer);
                             while (_serverService.GetStorageServerStatus(storageServer) == PowerStateEnum.PoweredOff)
                             {
-                                Thread.Sleep(_dbService.GetSettingsWithoutInclude().DelayTimeHosts * 1000); //x sekund čeká, poté kontrola znovu
+                                Thread.Sleep(_dbService.GetSettings().DelayTimeHosts * 1000); //x sekund čeká, poté kontrola znovu
                             }
                             _dbService.Log(new LogItem { OperationType = OperationTypeEnum.VSAStartupEnd, DateTime = DateTime.Now, VirtualStorageServerId = storageServer.Id, HostServerId = host.Id });
                         }
@@ -218,7 +218,7 @@ namespace MMNVS.Services
                 _dbService.Log(new LogItem { OperationType = OperationTypeEnum.DatastoreCheckBegin, DateTime = DateTime.Now, VirtualStorageServerId = storageServer.Id, HostServerId = host.Id, DatastoreId = datastore.Id });
                 while (_serverService.DataStoreCheck(datastore) == false)
                 {
-                    Thread.Sleep(_dbService.GetSettingsWithoutInclude().DelayTimeDatastores * 1000); //x sekund čeká, poté kontrola znovu
+                    Thread.Sleep(_dbService.GetSettings().DelayTimeDatastores * 1000); //x sekund čeká, poté kontrola znovu
                     _serverService.StorageRescan(host);
                 }
                 _dbService.Log(new LogItem { OperationType = OperationTypeEnum.DatastoreCheckEnd, DateTime = DateTime.Now, VirtualStorageServerId = storageServer.Id, HostServerId = host.Id, DatastoreId = datastore.Id });
@@ -231,7 +231,7 @@ namespace MMNVS.Services
             //Kontrola spuštění vCenter
             while(_vmService.GetvCenterState() != PowerStateEnum.PoweredOn)
             {
-                Thread.Sleep(_dbService.GetSettingsWithoutInclude().DelayTime * 1000); //x sekund čeká, poté kontrola znovu
+                Thread.Sleep(_dbService.GetSettings().DelayTime * 1000); //x sekund čeká, poté kontrola znovu
             }
             _dbService.Log(new LogItem { OperationType = OperationTypeEnum.vCenterStartEnd, DateTime = DateTime.Now });
             Thread.Sleep(20000); //pauza 20 sekund pro úplné dokončení startu vCenter
@@ -246,7 +246,7 @@ namespace MMNVS.Services
                     {
                         _dbService.Log(new LogItem { OperationType = OperationTypeEnum.VMStartBegin, DateTime = DateTime.Now, VirtualServerVMId = virtualServer.VMId });
                         _vmService.StartVirtualServer(virtualServer.VMId);
-                        Thread.Sleep(_dbService.GetSettingsWithoutInclude().DelayTimeVMStart * 1000); //pauza pro start Vm !!! zmenit
+                        Thread.Sleep(_dbService.GetSettings().DelayTimeVMStart * 1000); //pauza pro start Vm !!! zmenit
                         _dbService.Log(new LogItem { OperationType = OperationTypeEnum.VMStartEnd, DateTime = DateTime.Now, VirtualServerVMId = virtualServer.VMId });
                     }
 

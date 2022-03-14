@@ -26,7 +26,7 @@ namespace MMNVS.Pages
         public void OnGet()
         {
             UPSLogItems = new List<UPSLogItem>();
-            Settings = _dbService.GetSettingsWithoutInclude();
+            Settings = _dbService.GetSettings();
             List<Model.UPS> upss = _dbService.GetUPSs();
             foreach (Model.UPS ups in upss)
             {

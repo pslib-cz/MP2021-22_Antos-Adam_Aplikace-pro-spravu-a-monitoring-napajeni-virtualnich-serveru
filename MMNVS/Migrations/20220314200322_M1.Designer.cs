@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MMNVS.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220313110604_M2")]
-    partial class M2
+    [Migration("20220314200322_M1")]
+    partial class M1
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -172,6 +172,9 @@ namespace MMNVS.Migrations
                     b.Property<string>("AdministratorEmail")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("BatteryTimeForShutdownHosts")
+                        .HasColumnType("int");
+
                     b.Property<int>("DelayTime")
                         .HasColumnType("int");
 
@@ -192,9 +195,6 @@ namespace MMNVS.Migrations
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("PrimaryUPSId")
-                        .HasColumnType("int");
 
                     b.Property<bool>("SmtpIsSecure")
                         .HasColumnType("bit");
@@ -230,8 +230,6 @@ namespace MMNVS.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("PrimaryUPSId");
 
                     b.ToTable("Settings");
                 });
@@ -417,15 +415,15 @@ namespace MMNVS.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "eb6ff04e-1704-4d42-9b11-1f9ffbc403ea",
+                            Id = "3698bea7-d05c-4edb-8cc8-0241b3160724",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "4f4c87b5-2934-4ed1-96a1-8162e0714138",
+                            ConcurrencyStamp = "806847c7-6d75-4ec0-9bd3-a27227c273f5",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             NormalizedUserName = "ADMINISTRATOR",
-                            PasswordHash = "AQAAAAEAACcQAAAAEJpppji8nrZgTtnfPO3/cKI/X/nv1lcMdiEM6tc+GWD4J/QdP3DB/RA7ncKjPb9/kw==",
+                            PasswordHash = "AQAAAAEAACcQAAAAENOrrahD5qEbMBy3teBM3nc7bsptYAR/Ii8aqSbid/S2Z97KrXqOfSvmzBvg8aE6Jg==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "0d571556-0c53-424a-9366-32101a7e21b4",
+                            SecurityStamp = "ec86b9ae-41a7-4596-a975-e668a11970a1",
                             TwoFactorEnabled = false,
                             UserName = "administrator"
                         });
@@ -607,15 +605,6 @@ namespace MMNVS.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("MMNVS.Model.AppSettings", b =>
-                {
-                    b.HasOne("MMNVS.Model.UPS", "PrimaryUPS")
-                        .WithMany("AppSettings")
-                        .HasForeignKey("PrimaryUPSId");
-
-                    b.Navigation("PrimaryUPS");
-                });
-
             modelBuilder.Entity("MMNVS.Model.Datastore", b =>
                 {
                     b.HasOne("MMNVS.Model.VirtualStorageServer", "VirtualStorageServer")
@@ -690,8 +679,6 @@ namespace MMNVS.Migrations
 
             modelBuilder.Entity("MMNVS.Model.UPS", b =>
                 {
-                    b.Navigation("AppSettings");
-
                     b.Navigation("Log");
 
                     b.Navigation("UPSLog");

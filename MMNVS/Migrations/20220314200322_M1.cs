@@ -71,6 +71,38 @@ namespace MMNVS.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Settings",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    AdministratorEmail = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SmtpServer = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SmtpUser = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SmtpPassword = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SmtpPort = table.Column<int>(type: "int", nullable: true),
+                    SmtpIsSecure = table.Column<bool>(type: "bit", nullable: false),
+                    vCenterIP = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    vCenterUsername = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    vCenterPassword = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    vCenterApiUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    vCenterVersion = table.Column<int>(type: "int", nullable: false),
+                    DelayTime = table.Column<int>(type: "int", nullable: false),
+                    DelayTimeHosts = table.Column<int>(type: "int", nullable: false),
+                    DelayTimeDatastores = table.Column<int>(type: "int", nullable: false),
+                    DelayTimeVMStart = table.Column<int>(type: "int", nullable: false),
+                    MinBatteryTimeForStart = table.Column<int>(type: "int", nullable: false),
+                    MinBatteryTimeForShutdown = table.Column<int>(type: "int", nullable: false),
+                    BatteryTimeForShutdownHosts = table.Column<int>(type: "int", nullable: false),
+                    SystemState = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Settings", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "UPS",
                 columns: table => new
                 {
@@ -221,7 +253,6 @@ namespace MMNVS.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     HostId = table.Column<int>(type: "int", nullable: true),
-                    Order = table.Column<int>(type: "int", nullable: true),
                     Notes = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
@@ -231,43 +262,6 @@ namespace MMNVS.Migrations
                         name: "FK_VirtualStorageServers_HostServers_HostId",
                         column: x => x.HostId,
                         principalTable: "HostServers",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Settings",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    AdministratorEmail = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    SmtpServer = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    SmtpUser = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    SmtpPassword = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    SmtpPort = table.Column<int>(type: "int", nullable: true),
-                    SmtpIsSecure = table.Column<bool>(type: "bit", nullable: false),
-                    PrimaryUPSId = table.Column<int>(type: "int", nullable: true),
-                    vCenterIP = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    vCenterUsername = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    vCenterPassword = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    vCenterApiUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    vCenterVersion = table.Column<int>(type: "int", nullable: false),
-                    DelayTime = table.Column<int>(type: "int", nullable: false),
-                    DelayTimeHosts = table.Column<int>(type: "int", nullable: false),
-                    DelayTimeDatastores = table.Column<int>(type: "int", nullable: false),
-                    DelayTimeVMStart = table.Column<int>(type: "int", nullable: false),
-                    MinBatteryTimeForStart = table.Column<int>(type: "int", nullable: false),
-                    MinBatteryTimeForShutdown = table.Column<int>(type: "int", nullable: false),
-                    SystemState = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Settings", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Settings_UPS_PrimaryUPSId",
-                        column: x => x.PrimaryUPSId,
-                        principalTable: "UPS",
                         principalColumn: "Id");
                 });
 
@@ -302,7 +296,6 @@ namespace MMNVS.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Priority = table.Column<int>(type: "int", nullable: false),
                     VirtualStorageServerId = table.Column<int>(type: "int", nullable: true),
                     Notes = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
@@ -364,7 +357,7 @@ namespace MMNVS.Migrations
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "Notes", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { "5b8083ee-6664-4165-b4e4-26aea09ee586", 0, "ffb7a982-9b02-4750-9ac5-0deae53dd60d", null, false, false, null, null, "ADMINISTRATOR", null, "AQAAAAEAACcQAAAAEFJEpingfwaQpDs8FnKWRd6f69x8griLbDAxXCA4KZfwp+xsSIIns2QYTGGEMhdJ9A==", null, false, "7407ba99-a2fa-4246-8b6d-c0daf52ff7e0", false, "administrator" });
+                values: new object[] { "3698bea7-d05c-4edb-8cc8-0241b3160724", 0, "806847c7-6d75-4ec0-9bd3-a27227c273f5", null, false, false, null, null, "ADMINISTRATOR", null, "AQAAAAEAACcQAAAAENOrrahD5qEbMBy3teBM3nc7bsptYAR/Ii8aqSbid/S2Z97KrXqOfSvmzBvg8aE6Jg==", null, false, "ec86b9ae-41a7-4596-a975-e668a11970a1", false, "administrator" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -434,11 +427,6 @@ namespace MMNVS.Migrations
                 name: "IX_Log_VirtualStorageServerId",
                 table: "Log",
                 column: "VirtualStorageServerId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Settings_PrimaryUPSId",
-                table: "Settings",
-                column: "PrimaryUPSId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UPSLog_UPSId",

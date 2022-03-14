@@ -19,18 +19,6 @@ namespace MMNVS.Services
         public AppSettings GetSettings()
         {
             AppSettings settings;
-            settings = _context.Settings.Include(a => a.PrimaryUPS).FirstOrDefault();
-
-            if (settings == null)
-            {
-                settings = CreateSettings();
-            }
-            return settings;
-        }
-
-        public AppSettings GetSettingsWithoutInclude()
-        {
-            AppSettings settings;
             settings = _context.Settings.FirstOrDefault();
 
             if (settings == null)
@@ -98,12 +86,12 @@ namespace MMNVS.Services
 
         public SystemStateEnum GetSystemState()
         {
-            return GetSettingsWithoutInclude().SystemState;
+            return GetSettings().SystemState;
         }
 
         public void SetSystemState(SystemStateEnum state)
         {
-            AppSettings settings = GetSettingsWithoutInclude();
+            AppSettings settings = GetSettings();
             settings.SystemState = state;
             UpdateSettings(settings);
             Log(new LogItem { OperationType = OperationTypeEnum.ChangeSystemState, DateTime = DateTime.Now, SystemState = state });
@@ -245,7 +233,7 @@ namespace MMNVS.Services
         {
             if (isvCenter == false)
             {
-                int count = _context.VirtualServers.Count();
+                int count = _context.VirtualServers.Where(v => v.IsvCenter == false).Count();
                 virtualServer.Order = count + 1;
             }
             else if (isvCenter == true) virtualServer.IsvCenter = true;
@@ -260,6 +248,11 @@ namespace MMNVS.Services
                 vm.Order--;
             }
             _context.SaveChanges();
+            List<LogItem> log = _context.Log.Where(l => l.VirtualServerVMId == virtualServer.VMId).ToList();
+            foreach (LogItem logItem in log)
+            {
+                RemoveItem(logItem);
+            }
             RemoveItem(virtualServer);
         }
 
@@ -271,12 +264,15 @@ namespace MMNVS.Services
             {
                 foreach (VirtualStorageServer storageServer in host.VirtualStorageServers)
                 {
-                    foreach (Datastore datastore in storageServer.Datastores)
-                    {
-                        RemoveItem(datastore);
-                    }
-                    RemoveItem(storageServer);
+                    RemoveStorageServer(storageServer.Id);
                 }
+
+                List<LogItem> log = _context.Log.Where(l => l.HostServerId == host.Id).ToList();
+                foreach (LogItem logItem in log)
+                {
+                    RemoveItem(logItem);
+                }
+
                 RemoveItem(host);
             }
         }
@@ -288,9 +284,46 @@ namespace MMNVS.Services
             {
                 foreach (Datastore datastore in storageServer.Datastores)
                 {
-                    RemoveItem(datastore);
+                    RemoveDatastore(datastore.Id);
                 }
-            RemoveItem(storageServer);
+
+                List<LogItem> log = _context.Log.Where(l => l.VirtualStorageServerId == storageServer.Id).ToList();
+                foreach (LogItem logItem in log)
+                {
+                    RemoveItem(logItem);
+                }
+
+                RemoveItem(storageServer);
+            }
+        }
+
+        public void RemoveDatastore(int? id)
+        {
+            Datastore datastore = _context.Datastores.FirstOrDefault(d => d.Id == id);
+            if (datastore != null)
+            {
+                List<LogItem> log = _context.Log.Where(l => l.DatastoreId == datastore.Id).ToList();
+                foreach (LogItem logItem in log)
+                {
+                    RemoveItem(logItem);
+                }
+
+                RemoveItem(datastore);
+            }
+        }
+
+        public void RemoveUPS(int? id)
+        {
+            UPS ups = _context.UPS.FirstOrDefault(u => u.Id == id);
+            if (ups != null)
+            {
+                List<UPSLogItem> upsLog = _context.UPSLog.Where(l => l.UPSId == ups.Id).ToList();
+                foreach (UPSLogItem upsLogItem in upsLog)
+                {
+                    RemoveItem(upsLogItem);
+                }
+
+                RemoveItem(ups);
             }
         }
 
@@ -303,7 +336,6 @@ namespace MMNVS.Services
     public interface IDbService
     {
         AppSettings GetSettings();
-        AppSettings GetSettingsWithoutInclude();
         void UpdateSettings(AppSettings newAppSettings);
         List<VirtualServer> GetVirtualServers();
         List<VirtualServer> GetVirtualServersShutdown();
@@ -339,6 +371,8 @@ namespace MMNVS.Services
         void RemoveVirtualServer(VirtualServer virtualServer);
         void RemoveHostServer(int? id);
         void RemoveStorageServer(int? id);
+        void RemoveDatastore(int? id);
+        void RemoveUPS(int? id);
         Datastore GetDatastore(int? id);
     }
 }

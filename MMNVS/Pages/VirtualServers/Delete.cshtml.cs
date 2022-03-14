@@ -41,12 +41,7 @@ namespace MMNVS.Pages.VirtualServers
                 return NotFound();
             }
 
-            VirtualServer = _dbService.GetVirtualServer(id);
-
-            if (VirtualServer != null)
-            {
-                _dbService.RemoveVirtualServer(VirtualServer);
-            }
+            _dbService.RemoveVirtualServer(VirtualServer);
 
             return RedirectToPage("./Index");
         }

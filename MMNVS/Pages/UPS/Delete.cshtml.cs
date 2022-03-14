@@ -43,12 +43,7 @@ namespace MMNVS.Pages.UPS
                 return NotFound();
             }
 
-            UPS = _dbService.GetUPS(id);
-
-            if (UPS != null)
-            {
-                _dbService.RemoveItem(UPS);
-            }
+            _dbService.RemoveUPS(id);
 
             return RedirectToPage("./Index");
         }

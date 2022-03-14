@@ -152,7 +152,7 @@ namespace MMNVS.Services
 
         public async void ShutdownVirtualServer(string vmId)
         {
-            var version = _dbService.GetSettingsWithoutInclude().vCenterVersion;
+            var version = _dbService.GetSettings().vCenterVersion;
             if (version == vCenterVersionEnum.v65)
             {
                 ShutdownVirtualServer65(vmId);
@@ -183,7 +183,7 @@ namespace MMNVS.Services
         public void ShutdownVirtualServer65(string vmId) //Vypínání ve verzi 6.6 a starší, v REST Api není endpoint pro shutdown virtuálního serveru
         {
             VirtualServer virtualServer = _dbService.GetVirtualServer(vmId);
-            AppSettings settings = _dbService.GetSettingsWithoutInclude();
+            AppSettings settings = _dbService.GetSettings();
             Runspace runspace = RunspaceFactory.CreateRunspace();
             runspace.Open();
 

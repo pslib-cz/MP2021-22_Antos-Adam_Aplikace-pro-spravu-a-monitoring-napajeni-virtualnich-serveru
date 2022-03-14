@@ -16,7 +16,7 @@ namespace MMNVS.Services
 
         public void SendMail(string subject, string body)
         {
-			AppSettings settings = _dbService.GetSettingsWithoutInclude();
+			AppSettings settings = _dbService.GetSettings();
 
 			var message = new MimeMessage();
 			message.From.Add(new MailboxAddress("MMNVS - " + settings.Name, settings.SmtpUser));
