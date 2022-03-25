@@ -12,9 +12,9 @@ namespace MMNVS.Model
         public string? Producer { get; set; }
         [Display(Name = "iLo IP adresa")]
         public string? iLoIPAddress { get; set; }
-        [Display(Name = "iLo IP uživatel")]
+        [Display(Name = "iLo uživatel")]
         public string? iLoUser { get; set; }
-        [Display(Name = "iLo IP heslo")]
+        [Display(Name = "iLo heslo")]
         public string? iLoPassword { get; set; }
         [Display(Name = "IP adresa serveru")]
         public string? ESXiIPAddress { get; set; }

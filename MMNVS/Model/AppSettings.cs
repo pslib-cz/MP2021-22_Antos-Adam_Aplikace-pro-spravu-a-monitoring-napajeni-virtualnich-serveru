@@ -69,5 +69,7 @@ namespace MMNVS.Model
         [Display(Name = "Výdrž baterie pro zahájení vypínání hostů (s)")]
         public int BatteryTimeForShutdownHosts { get; set; }
         public SystemStateEnum SystemState { get; set; }
+        [Display(Name = "Testovací režim")]
+        public bool TestMode { get; set; }
     }
 }

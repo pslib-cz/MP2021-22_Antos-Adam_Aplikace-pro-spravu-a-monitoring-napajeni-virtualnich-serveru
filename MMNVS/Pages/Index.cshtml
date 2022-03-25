@@ -4,11 +4,15 @@
 ViewData["Title"] = "Stav systému";
 }
 
+@if (Model.Settings.TestMode == true)
+{
+    <div class="alert alert-danger">Systém je v testovacím režimu, procesy spouštění a vypínání serverů nebudou prováděny. Správce bude pouze informován e-mailem.</div>
+}
+
 <div>
     <div class="h-100 p-5 text-white bg-dark rounded-3">
     <h2>Monitoring a management napájení virtuálních serverů</h2>
     <h3>Stav systému, UPS a host serverů</h3>
-    @*<p>@Model.Settings.vCenterApiUrl</p>*@
     <p>Aktuální stav systému: @Html.DisplayFor(modelItem => Model.Settings.SystemState)</p>
         <div>
             <a class="btn btn-outline-light" asp-page="/VirtualServers/Index">Zobrazit stav virtuálních serverů</a>

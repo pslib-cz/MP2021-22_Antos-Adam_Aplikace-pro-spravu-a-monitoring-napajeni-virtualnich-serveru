@@ -35,16 +35,40 @@ namespace MMNVS.Services
             }
             if (isUPSOnMainSuply == true && systemState == SystemStateEnum.Off) //USP připojena(y) k síti a servery vypnuté
             {
+                if (_dbService.GetSettings().TestMode == true)
+                {
+                    _mailService.SendMail("USP připojena(y) k síti a servery vypnuté", "USP připojena(y) k síti a servery vypnuté");
+                }
                 if (_upsservice.GetRemaingTimeAllUPSs() >= _dbService.GetSettings().MinBatteryTimeForStart) //spouštění pouze při na nabitých bateriích
                 {
-                    Start();
+                    if (_dbService.GetSettings().TestMode == false)
+                    {
+                        Start();
+                    }
+                    else
+                    {
+                        _mailService.SendMail("Testovací mód - start", "Pokud by systém nebyl v testovacím režimu, servery by se začaly spouštět.");
+                        _dbService.SetSystemState(SystemStateEnum.Running);
+                    }
                 }
             }
             else if (isUPSOnMainSuply == false && systemState == SystemStateEnum.Running) //UPS na bateriích a servery spuštěné
             {
+                if (_dbService.GetSettings().TestMode == true)
+                {
+                    _mailService.SendMail("UPS na bateriích a servery spuštěné", "UPS na bateriích a servery spuštěné");
+                }
                 if (_upsservice.GetRemaingTimeAllUPSs() <= _dbService.GetSettings().MinBatteryTimeForShutdown) //spouštění pouze při na nabitých bateriích
                 {
-                    Shutdown();
+                    if (_dbService.GetSettings().TestMode == false)
+                    {
+                        Shutdown();
+                    }
+                    else
+                    {
+                        _mailService.SendMail("Testovací mód - vypínání", "Pokud by systém nebyl v testovacím režimu, servery by se začaly vypínat.");
+                        _dbService.SetSystemState(SystemStateEnum.Off);
+                    }
                 }
             }
         }
