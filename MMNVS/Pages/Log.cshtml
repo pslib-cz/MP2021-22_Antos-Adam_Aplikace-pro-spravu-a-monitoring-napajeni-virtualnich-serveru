@@ -70,12 +70,12 @@
             @if(i == Model.PageNumber)
             {
                 <li class="page-item active" aria-current="page">
-                    <a class="page-link" asp-page="Log" asp-route-pageNumber="@i">@i</a>
+                    <a class="page-link" asp-page="Log" asp-route-pageNumber="@i"  asp-route-itemsPerPage="@Model.ItemsPerPage">@i</a>
                 </li>
             }
             else
             {
-                <li class="page-item"><a class="page-link" asp-page="Log" asp-route-pageNumber="@i">@i</a></li>
+                <li class="page-item"><a class="page-link" asp-page="Log" asp-route-pageNumber="@i"  asp-route-itemsPerPage="@Model.ItemsPerPage">@i</a></li>
             }
     }
 </ul>
