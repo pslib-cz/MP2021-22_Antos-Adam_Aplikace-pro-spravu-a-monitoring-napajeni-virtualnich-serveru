@@ -46,7 +46,6 @@ namespace MMNVS.Pages
             _dbService.UpdateSettings(Settings);
             if (_vmService.GetvCenterState() == PowerStateEnum.PoweredOn) SuccessMessage = "Připojení k vCenter serveru bylo úspěšné. Změny byly uloženy.";
             else ErrorMessage = "Při připojování k serveru se vyskytla neočekávaná chyba, zkontrolujte správnost údajů!";
-            //return RedirectToPage("Settings");
             return RedirectToPage();
         }
 

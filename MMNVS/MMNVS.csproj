@@ -5,6 +5,9 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>aspnet-MMNVS-669F8247-0353-4713-B61C-8E9FDD0EA48C</UserSecretsId>
+    <OutputType>Exe</OutputType>
+    <Authors>$(AssemblyName)</Authors>
+    <AssemblyVersion>2.1.0.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>

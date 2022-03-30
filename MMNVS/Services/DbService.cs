@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MMNVS.Data;
 using MMNVS.Model;
+using System.Globalization;
 
 namespace MMNVS.Services
 {
@@ -162,18 +163,18 @@ namespace MMNVS.Services
             _context.SaveChanges();
         }
 
-        public List<UPSLogItem> GetUPSLog(int count = 0, int start = 1)
+        public List<UPSLogItem> GetUPSLog(DateTime dateTimeTo, DateTime dateTimeFrom, int count = 0, int start = 1)
         {
-            if (count == 0) return _context.UPSLog.OrderByDescending(l => l.DateTime).ToList();
+            if (count == 0) return _context.UPSLog.OrderByDescending(l => l.DateTime).Where(u => u.DateTime >= dateTimeFrom && u.DateTime <= dateTimeTo).ToList();
             int _start = start - 1;
-            return _context.UPSLog.Include(u => u.UPS).OrderByDescending(l => l.DateTime).Skip(_start * count).Take(count).ToList();
+            return _context.UPSLog.Include(u => u.UPS).OrderByDescending(l => l.DateTime).Where(u => u.DateTime >= dateTimeFrom && u.DateTime <= dateTimeTo).Skip(_start * count).Take(count).ToList();
         }
 
-        public List<LogItem> GetLog(int count = 0, int start = 1)
+        public List<LogItem> GetLog(DateTime dateTimeTo, DateTime dateTimeFrom, int count = 0, int start = 1)
         {
-            if (count == 0) return _context.Log.OrderByDescending(l => l.DateTime).ToList();
+            if (count == 0) return _context.Log.OrderByDescending(l => l.DateTime).Where(u => u.DateTime >= dateTimeFrom && u.DateTime <= dateTimeTo).ToList();
             int _start = start - 1;
-            return _context.Log.OrderByDescending(l => l.DateTime).Skip(_start * count).Take(count).ToList();
+            return _context.Log.OrderByDescending(l => l.DateTime).Where(u => u.DateTime >= dateTimeFrom && u.DateTime <= dateTimeTo).Skip(_start * count).Take(count).ToList();
         }
 
         public bool IsVirtualStorageServer(string name)
@@ -202,14 +203,16 @@ namespace MMNVS.Services
             _context.SaveChanges();
         }
 
-        public int GetLogPagesCount(int count)
+        public int GetLogPagesCount(DateTime dateTimeTo, DateTime dateTimeFrom, int count = 1)
         {
-            int itemsCount = _context.Log.Count();
+            int itemsCount = _context.Log.Where(u => u.DateTime >= dateTimeFrom && u.DateTime <= dateTimeTo).Count();
+            if (count <= 0) return 1;
             return (itemsCount / count) + 1;
         }
-        public int GetUPSLogPagesCount(int count)
+        public int GetUPSLogPagesCount(DateTime dateTimeTo, DateTime dateTimeFrom, int count = 1)
         {
-            int itemsCount = _context.UPSLog.Count();
+            int itemsCount = _context.UPSLog.Where(u => u.DateTime >= dateTimeFrom && u.DateTime <= dateTimeTo).Count();
+            if (count <= 0) return 1;
             return (itemsCount / count) + 1;
         }
 
@@ -331,6 +334,34 @@ namespace MMNVS.Services
         {
             return _context.Datastores.FirstOrDefault(d => d.Id == id);
         }
+
+        public DateTimeFromTo CheckDateNotNull(string dateTimeToStr, string dateTimeFromStr)
+        {
+            DateTime? dateTimeTo = null;
+            DateTime? dateTimeFrom = null;
+
+            try
+            {
+                dateTimeFrom = DateTime.ParseExact(dateTimeFromStr, "yyyyMMddHHmmss", CultureInfo.InvariantCulture);
+                dateTimeTo = DateTime.ParseExact(dateTimeToStr, "yyyyMMddHHmmss", CultureInfo.InvariantCulture);
+            }
+            catch { }
+
+            DateTimeFromTo dateTimeFromTo = new DateTimeFromTo();
+
+            if (dateTimeTo != null) dateTimeFromTo.DateTimeTo = (DateTime)dateTimeTo;
+            else dateTimeFromTo.DateTimeTo = DateTime.Now;
+            if (dateTimeFrom != null) dateTimeFromTo.DateTimeFrom = (DateTime)dateTimeFrom;
+            else
+            {
+                dateTimeFromTo.DateTimeFrom = DateTime.Now;
+                dateTimeFromTo.DateTimeFrom = dateTimeFromTo.DateTimeFrom.AddHours(-4);
+            }
+            dateTimeFromTo.DateTimeFrom = dateTimeFromTo.DateTimeFrom.AddMilliseconds(-dateTimeFromTo.DateTimeFrom.Millisecond);
+            dateTimeFromTo.DateTimeTo = dateTimeFromTo.DateTimeTo.AddMilliseconds(-dateTimeFromTo.DateTimeTo.Millisecond);
+
+            return dateTimeFromTo;
+        }
     }
 
     public interface IDbService
@@ -345,8 +376,8 @@ namespace MMNVS.Services
         List<UPS> GetUPSs();
         List<HostServer> GetHostServers();
         List<VirtualStorageServer> GetStorageServers(int hostId, bool includeDatastores = false);
-        List<UPSLogItem> GetUPSLog(int count = 0, int start = 1);
-        List<LogItem> GetLog(int count = 0, int start = 1);
+        List<UPSLogItem> GetUPSLog(DateTime dateTimeTo, DateTime dateTimeFrom, int count = 0, int start = 1);
+        List<LogItem> GetLog(DateTime dateTimeTo, DateTime dateTimeFrom, int count = 0, int start = 1);
         void AddItem(Object item);
         void EditItem(Object item);
         void RemoveItem(Object item);
@@ -363,8 +394,8 @@ namespace MMNVS.Services
         VirtualServer GetvCenter();
         void Log(LogItem logItem);
         void LogUPS(UPSLogItem upsLogItem);
-        int GetLogPagesCount(int count = 1);
-        int GetUPSLogPagesCount(int count = 1);
+        int GetLogPagesCount(DateTime dateTimeTo, DateTime dateTimeFrom, int count = 1);
+        int GetUPSLogPagesCount(DateTime dateTimeTo, DateTime dateTimeFrom, int count = 1);
         void SetvCenter(VirtualServer newVCenter);
         UPS GetUPS(int? id);
         void AddVirtualServer(VirtualServer virtualServer, bool isvCenter = false);
@@ -374,5 +405,13 @@ namespace MMNVS.Services
         void RemoveDatastore(int? id);
         void RemoveUPS(int? id);
         Datastore GetDatastore(int? id);
+        DateTimeFromTo CheckDateNotNull(string dateTimeToStr, string dateTimeFromStr);
     }
+
+    public class DateTimeFromTo
+    {
+        public DateTime DateTimeFrom { get; set; }
+        public DateTime DateTimeTo { get; set; }
+    }
+
 }
