@@ -29,16 +29,19 @@ namespace MMNVS.Pages.Hosts
             HostServer = _dbService.GetHostServer(id);
             if (HostServer == null) return NotFound();
             iLOState = _serverService.GetHostServeriLOStatus(HostServer).Result;
-            vSphereState = _serverService.GetHostServerStatus(HostServer);
-            StorageServers = _dbService.GetStorageServers(HostServer.Id, true);
-            StorageServersState = new Dictionary<int, PowerStateEnum>();
-            DatastoresState = new Dictionary<int, bool>();
-            foreach (var storageServer in StorageServers)
+            if (HostServer.IsOSWindows == false)
             {
-                StorageServersState.Add(storageServer.Id, _serverService.GetStorageServerStatus(storageServer));
-                foreach (var datastore in storageServer.Datastores)
+                vSphereState = _serverService.GetHostServerStatus(HostServer);
+                StorageServers = _dbService.GetStorageServers(HostServer.Id, true);
+                StorageServersState = new Dictionary<int, PowerStateEnum>();
+                DatastoresState = new Dictionary<int, bool>();
+                foreach (var storageServer in StorageServers)
                 {
-                    DatastoresState.Add(datastore.Id, _serverService.DataStoreCheck(datastore));
+                    StorageServersState.Add(storageServer.Id, _serverService.GetStorageServerStatus(storageServer));
+                    foreach (var datastore in storageServer.Datastores)
+                    {
+                        DatastoresState.Add(datastore.Id, _serverService.DataStoreCheck(datastore));
+                    }
                 }
             }
             return Page();

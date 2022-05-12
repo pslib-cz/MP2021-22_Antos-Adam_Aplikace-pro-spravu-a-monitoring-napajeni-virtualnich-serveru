@@ -40,6 +40,8 @@ ViewData["Title"] = "Stav hosta";
             }
             </div>
         </div>
+        @if(Model.HostServer.IsOSWindows == false)
+        {
         <div>
              <div class="card border-dark">
             @if (@Model.vSphereState == MMNVS.Model.PowerStateEnum.PoweredOn)
@@ -108,6 +110,7 @@ ViewData["Title"] = "Stav hosta";
             }
             </div>
         </div>
+        }
         }
     </div>
 </div>

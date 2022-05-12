@@ -38,8 +38,17 @@ namespace MMNVS.Pages.Hosts
             }
 
             _dbService.AddItem(HostServer);
-            if (_serverService.GetHostServerStatus(HostServer) == PowerStateEnum.PoweredOn) SuccessMessage = "Připojení k serveru bylo úspěšné.";
-            else ErrorMessage = "Při pokusu o připojení se vyskytla chyba!";
+
+            if (HostServer.IsOSWindows == false)
+            {
+                if (_serverService.GetHostServerStatus(HostServer) == PowerStateEnum.PoweredOn) SuccessMessage = "Připojení k serveru bylo úspěšné.";
+                else ErrorMessage = "Při pokusu o připojení se vyskytla chyba!";
+            }
+
+            else
+            {
+                SuccessMessage = "Server s operačním systémem Windows byl přidán.";
+            }
 
             return RedirectToPage("./Index");
         }
@@ -53,15 +62,24 @@ namespace MMNVS.Pages.Hosts
 
             _dbService.AddItem(HostServer);
 
-            if (_serverService.GetHostServerStatus(HostServer) == PowerStateEnum.PoweredOn) 
+            if (HostServer.IsOSWindows == false)
             {
-                SuccessMessage = "Připojení k serveru bylo úspěšné. Pokračujte k přidání storage serveru.";
-                return Redirect("./StorageServers/Create?hostServerId=" + HostServer.Id.ToString());
+                if (_serverService.GetHostServerStatus(HostServer) == PowerStateEnum.PoweredOn)
+                {
+                    SuccessMessage = "Připojení k serveru bylo úspěšné. Pokračujte k přidání storage serveru.";
+                    return Redirect("./StorageServers/Create?hostServerId=" + HostServer.Id.ToString());
+                }
+
+                else
+                {
+                    ErrorMessage = "Při pokusu o připojení se vyskytla chyba! Před pokračováním dále zkontrolujte nastavení hostitelského serveru.";
+                    return RedirectToPage("./Index");
+                }
             }
-            
+
             else
             {
-                ErrorMessage = "Při pokusu o připojení se vyskytla chyba! Před pokračováním dále zkontrolujte nastavení hostitelského serveru.";
+                SuccessMessage = "Server s operačním systémem Windows byl přidán.";
                 return RedirectToPage("./Index");
             }
         }

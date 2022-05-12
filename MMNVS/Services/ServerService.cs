@@ -148,16 +148,24 @@ namespace MMNVS.Services
 
         public void ShutdownHost(HostServer host)
         {
-            Runspace runspace = RunspaceFactory.CreateRunspace();
-            runspace.Open();
+            if (host.IsOSWindows == false)
+            {
+                Runspace runspace = RunspaceFactory.CreateRunspace();
+                runspace.Open();
 
-            Pipeline pipeline = runspace.CreatePipeline();
-            pipeline.Commands.AddScript("Set-ExecutionPolicy Unrestricted");
-            pipeline.Commands.AddScript("Import-Module VMware.VimAutomation.Core");
-            pipeline.Commands.AddScript("Connect-VIServer -Server " + host.ESXiIPAddress + " -Protocol https -User " + host.ESXiUser + " -Password " + host.ESXiPassword + " -ErrorAction Stop");
-            pipeline.Commands.AddScript("Stop-VMHost -VMHost " + host.ESXiIPAddress + " -Force -Confirm:$false");
-            pipeline.Invoke();
-            runspace.Close();
+                Pipeline pipeline = runspace.CreatePipeline();
+                pipeline.Commands.AddScript("Set-ExecutionPolicy Unrestricted");
+                pipeline.Commands.AddScript("Import-Module VMware.VimAutomation.Core");
+                pipeline.Commands.AddScript("Connect-VIServer -Server " + host.ESXiIPAddress + " -Protocol https -User " + host.ESXiUser + " -Password " + host.ESXiPassword + " -ErrorAction Stop");
+                pipeline.Commands.AddScript("Stop-VMHost -VMHost " + host.ESXiIPAddress + " -Force -Confirm:$false");
+                pipeline.Invoke();
+                runspace.Close();
+            }
+
+            else if(host.IsOSWindows == true)
+            {
+                StartHost(host);
+            }
         }
 
         public PowerStateEnum GetStorageServerStatus(VirtualStorageServer storageServer)

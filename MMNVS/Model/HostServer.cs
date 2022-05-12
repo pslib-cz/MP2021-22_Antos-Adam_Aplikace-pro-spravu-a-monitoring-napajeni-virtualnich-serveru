@@ -24,7 +24,8 @@ namespace MMNVS.Model
         public string? ESXiPassword { get; set; }
         [Display(Name = "Poznámky")]
         public string? Notes { get; set; }
-        //public ICollection<VirtualServer>? VirtualServers { get; set; }
+        [Display(Name = "Má operační systém Windows")]
+        public bool IsOSWindows { get; set; }
         public ICollection<VirtualStorageServer>? VirtualStorageServers { get; set; }
         public ICollection<LogItem>? Log { get; set; }
     }

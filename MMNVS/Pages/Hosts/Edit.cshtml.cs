@@ -50,8 +50,16 @@ namespace MMNVS.Pages.Hosts
 
             _dbService.EditItem(HostServer);
 
-            if (_serverService.GetHostServerStatus(HostServer) == PowerStateEnum.PoweredOn) SuccessMessage = "Připojení k serveru bylo úspěšné.";
-            else ErrorMessage = "Při pokusu o připojení se vyskytla chyba!";
+            if (HostServer.IsOSWindows == false)
+            {
+                if (_serverService.GetHostServerStatus(HostServer) == PowerStateEnum.PoweredOn) SuccessMessage = "Připojení k serveru bylo úspěšné.";
+                else ErrorMessage = "Při pokusu o připojení se vyskytla chyba!";
+            }
+            else
+            {
+                SuccessMessage = "Server s operačním systémem Windows byl upraven.";
+            }
+
 
             return RedirectToPage("./Index");
         }
